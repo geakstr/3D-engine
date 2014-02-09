@@ -33,6 +33,7 @@ public class ResourceBuffer {
     private static Map<Integer, Map<String, Material>> materials = new HashMap<Integer, Map<String, Material>>();
     private static Map<Integer, Integer> texturesID = new HashMap<Integer, Integer>();
 
+    private static Map<Integer, Integer> vboVertexID = new HashMap<Integer, Integer>();
     private static Map<Integer, Integer> vboNormalID = new HashMap<Integer, Integer>();
     private static Map<Integer, Integer> vboColorID = new HashMap<Integer, Integer>();
     private static Map<Integer, Integer> vboTextureID = new HashMap<Integer, Integer>();
@@ -114,13 +115,16 @@ public class ResourceBuffer {
 
     public static void loadBuffers() {
         for (Model model : models.values()) {
-            int id = model.getModelID();
+            int id = model.getId();
+            int curVboVertexID = glGenBuffers();
             int curVboNormalID = glGenBuffers();
             int curVboColorID = glGenBuffers();
-            int curVboTextureID = -1;
+
+            vboVertexID.put(id, curVboVertexID);
             vboNormalID.put(id, curVboNormalID);
             vboColorID.put(id, curVboColorID);
 
+            int curVboTextureID = -1;
             boolean isTextured = textured.get(id);
             if (isTextured) {
                 curVboTextureID = glGenBuffers();
@@ -128,6 +132,7 @@ public class ResourceBuffer {
             }
 
             int size = faces.get(id).size();
+            FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(9 * size);
             FloatBuffer normalBuffer = BufferUtils.createFloatBuffer(9 * size);
             FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(9 * size);
             FloatBuffer textureBuffer = null;
@@ -135,6 +140,18 @@ public class ResourceBuffer {
 
             for (Face face : faces.get(id)) {
                 Material material = face.getMaterial();
+
+                // Get the first vertex of the face
+                Vector3f v1 = vertices.get(id).get((int) face.getVertex().x - 1);
+                vertexBuffer.put(v1.x).put(v1.y).put(v1.z);
+
+                // Get the second vertex of the face
+                Vector3f v2 = vertices.get(id).get((int) face.getVertex().y - 1);
+                vertexBuffer.put(v2.x).put(v2.y).put(v2.z);
+
+                // Get the third vertex of the face
+                Vector3f v3 = vertices.get(id).get((int) face.getVertex().z - 1);
+                vertexBuffer.put(v3.x).put(v3.y).put(v3.z);
 
                 // Get the first normal of the face
                 Vector3f n1 = normals.get(id).get((int) face.getNormal().x - 1);
@@ -166,11 +183,16 @@ public class ResourceBuffer {
                     textureBuffer.put(t3.x).put(1 - t3.y);
                 }
             }
+            vertexBuffer.rewind();
             normalBuffer.rewind();
             colorBuffer.rewind();
             if (isTextured) textureBuffer.rewind();
 
             // Bind buffers
+            glBindBuffer(GL_ARRAY_BUFFER, curVboVertexID);
+            glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+
             glBindBuffer(GL_ARRAY_BUFFER, curVboNormalID);
             glBufferData(GL_ARRAY_BUFFER, normalBuffer, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -185,11 +207,9 @@ public class ResourceBuffer {
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
             }
 
-
             // Pre-render
             glEnableClientState(GL_NORMAL_ARRAY);
             glEnableClientState(GL_COLOR_ARRAY);
-
             if (isTextured) {
                 glEnable(GL_TEXTURE_2D);
                 glBindTexture(GL_TEXTURE_2D, ResourceBuffer.getTexturesID(modelID));
@@ -306,6 +326,10 @@ public class ResourceBuffer {
 
     public static boolean getTextured(int modelID) {
         return textured.get(modelID);
+    }
+
+    public static int getVboVertexID(int modelID) {
+        return vboVertexID.get(modelID);
     }
 
     public static int getVboNormalID(int modelID) {
