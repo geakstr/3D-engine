@@ -10,6 +10,8 @@ uniform mat4 mNormal;
 
 uniform mat4 mTransform;
 
+uniform mat4 mModelTransform;
+
 void main()
 {
     // Pass the color to the fragment shader
@@ -19,5 +21,5 @@ void main()
     gl_TexCoord[0] = gl_MultiTexCoord0;
     
     // Calculate the transformed vertex
-    gl_Position = mProjection * mView * mTransform * gl_Vertex;
+    gl_Position = mProjection * mView * mTransform * mModelTransform * gl_Vertex;
 }
