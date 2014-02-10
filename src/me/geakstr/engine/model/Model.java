@@ -9,12 +9,12 @@ import static org.lwjgl.opengl.GL11.*;
 public class Model {
     private int id;
 
-    private float x, y, z;
+    private int x, y, z;
     private float rotX, rotY, rotZ;
     private float scaleX, scaleY, scaleZ;
     private Transform transform;
 
-    public Model(int id, float x, float y, float z, float rotX, float rotY, float rotZ, float scaleX, float scaleY, float scaleZ) {
+    public Model(int id, int x, int y, int z, float rotX, float rotY, float rotZ, float scaleX, float scaleY, float scaleZ) {
         this.id = id;
         this.x = x;
         this.y = y;
@@ -31,11 +31,11 @@ public class Model {
         if (scaleX != 0 || scaleY != 0 || scaleZ != 0) this.transform.scale(scaleX, scaleY, scaleZ);
     }
 
-    public Model(int id, float x, float y, float z, float rotX, float rotY, float rotZ) {
+    public Model(int id, int x, int y, int z, float rotX, float rotY, float rotZ) {
         this(id, x, y, z, rotX, rotY, rotZ, 0, 0, 0);
     }
 
-    public Model(int id, float x, float y, float z) {
+    public Model(int id, int x, int y, int z) {
         this(id, x, y, z, 0, 0, 0, 0, 0, 0);
     }
 
@@ -43,15 +43,15 @@ public class Model {
         this(id, 0, 0, 0);
     }
 
-    public Model clone(float x, float y, float z, float rotX, float rotY, float rotZ, float scaleX, float scaleY, float scaleZ) {
+    public Model clone(int x, int y, int z, float rotX, float rotY, float rotZ, float scaleX, float scaleY, float scaleZ) {
         return new Model(id, x, y, z, rotX, rotY, rotZ, scaleX, scaleY, scaleZ);
     }
 
-    public Model clone(float x, float y, float z, float rotX, float rotY, float rotZ) {
+    public Model clone(int x, int y, int z, float rotX, float rotY, float rotZ) {
         return clone(x, y, z, rotX, rotY, rotZ, scaleX, scaleY, scaleZ);
     }
 
-    public Model clone(float x, float y, float z) {
+    public Model clone(int x, int y, int z) {
         return clone(x, y, z, rotX, rotY, rotZ);
     }
 
@@ -63,7 +63,7 @@ public class Model {
         return clone(false);
     }
 
-    public void render(Shader shader) {
+    public static void render(int id, int x, int y, int z, float rotX, float rotY, float rotZ, float scaleX, float scaleY, float scaleZ, Shader shader) {
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_NORMAL_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
@@ -74,8 +74,15 @@ public class Model {
         glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboVertexID(id));
         glVertexPointer(3, GL_FLOAT, 0, 0);
 
-        shader.setUniform("mModelTransform", transform.getTransform());
+        if (x != 0 || y != 0 || z != 0 || rotX != 0 || rotY != 0 || rotZ != 0 || scaleX != 0 || scaleY != 0 || scaleZ != 0) {
+            Transform transform = new Transform();
+            if (x != 0 || y != 0 || z != 0) transform.translate(x, y, z);
+            if (rotX != 0 || rotY != 0 || rotZ != 0) transform.rotate(rotX, rotY, rotZ);
+            if (scaleX != 0 || scaleY != 0 || scaleZ != 0) transform.scale(scaleX, scaleY, scaleZ);
+            shader.setUniform("mModelTransform", transform.getTransform());
+        }
         glDrawArrays(GL_TRIANGLES, 0, 9 * ResourceBuffer.getFaces(id).size());
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
@@ -96,15 +103,15 @@ public class Model {
         return id;
     }
 
-    public float getX() {
+    public int getX() {
         return x;
     }
 
-    public float getY() {
+    public int getY() {
         return y;
     }
 
-    public float getZ() {
+    public int getZ() {
         return z;
     }
 
