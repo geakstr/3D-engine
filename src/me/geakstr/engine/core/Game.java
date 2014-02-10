@@ -6,15 +6,15 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.PixelFormat;
 
-public class Game {
+public class Game implements Runnable{
 	private static Game instance;
-	
+
 	public static final int WIDTH = 600;
 	public static final int HEIGHT = 600;
 	public static final boolean VSYNC_ENABLED = true;
 	public static final boolean RESIZE_ENABLED = false;
 	public static final boolean FULLSCREEN_ENABLED = false;
-	public static final double FRAME_CAP = 60.0;
+	public static final double FRAME_CAP = 60;
 
     public static String RES_DIR;
 
@@ -26,31 +26,32 @@ public class Game {
             Display.setVSyncEnabled(VSYNC_ENABLED);
             Display.setResizable(RESIZE_ENABLED);
             setDisplayMode(WIDTH, HEIGHT, FULLSCREEN_ENABLED);
-            gameLoop();
+            run();
         } catch (LWJGLException e) {
             e.printStackTrace();
             System.exit(-1);
         }
     }
 
-	public Game(int majorGL, int minorGL) {
-        RES_DIR = "";
+	public Game(String resDir, int majorGL, int minorGL) {
+        RES_DIR = resDir;
 		try {
 			instance = this;
 			Display.create(new PixelFormat(), new ContextAttribs(majorGL, minorGL).withForwardCompatible(true).withProfileCore(true));
 			Display.setVSyncEnabled(VSYNC_ENABLED);
 			Display.setResizable(RESIZE_ENABLED);
 			setDisplayMode(WIDTH, HEIGHT, FULLSCREEN_ENABLED);
-			gameLoop();
+			run();
 		} catch (LWJGLException e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
     }
 
-	private void gameLoop() {		
+	public void run() {
+
         init();
-        
+
         int frames = 0;
 		long frameCounter = 0;
 
@@ -66,14 +67,14 @@ public class Game {
 			lastTime = startTime;
 			unprocessedTime += passedTime / (double) Time.SECOND;
 			frameCounter += passedTime;
-			
+
 			while (unprocessedTime > frameTime) {
 				render = true;
 				unprocessedTime -= frameTime;
 				if (Display.isCloseRequested()) end();
 				update();
 				if (frameCounter > Time.SECOND) {
-					System.out.println(frames + " fps");
+                    Display.setTitle("3D Engine [FPS: " + frames + "]");
 					frames = 0;
 					frameCounter = 0;
 				}
@@ -84,7 +85,7 @@ public class Game {
 				frames++;
 			} else {
 				try {
-					Thread.sleep(5);
+					Thread.sleep(1);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
