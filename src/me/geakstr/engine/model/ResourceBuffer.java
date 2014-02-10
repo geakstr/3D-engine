@@ -219,13 +219,16 @@ public class ResourceBuffer {
 
                 glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboTextureID(modelID));
                 glTexCoordPointer(2, GL_FLOAT, 0, 0);
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
             }
 
             glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboNormalID(modelID));
             glNormalPointer(GL_FLOAT, 0, 0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboColorlID(modelID));
             glColorPointer(3, GL_FLOAT, 0, 0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             glDisableClientState(GL_NORMAL_ARRAY);
             glDisableClientState(GL_COLOR_ARRAY);
