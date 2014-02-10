@@ -22,6 +22,8 @@ public class Main extends Game {
 
     private List<Model> models;
 
+    private boolean wasInput;
+
     public Main(String resDir) {
         super(resDir);
     }
@@ -53,12 +55,13 @@ public class Main extends Game {
             }
         }
 
+        wasInput = true;
+
 		glCullFace(GL_FRONT_FACE);
 	}
 
 	public void update() {
-		camera.input();
-
+		wasInput = camera.input();
 	}
 
 	public void render() {
@@ -67,7 +70,9 @@ public class Main extends Game {
 		
 		camera.apply();
 
-        frustum.update(camera.getProjectionMatrix(), camera.getViewMatrix());
+        if (wasInput) {
+            frustum.update(camera.getProjectionMatrix(), camera.getViewMatrix());
+        }
 
         baseShader.bind();
         baseShader.setUniform("mProjection", camera.getProjectionMatrix());

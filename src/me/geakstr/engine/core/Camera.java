@@ -52,15 +52,19 @@ public class Camera {
 		centerPosition = new Vector2f(Display.getWidth() / 2, Display.getHeight() / 2);
 	}
 
-	public void input() {
+	public boolean input() {
+        boolean wasInput = false;
+
 		if (Input.getKey(Input.KEY_ESCAPE)) {
 			Input.setCursor(true);
 			mouseLocked = false;
+            wasInput = true;
 		}
 		if (Input.getMouseDown(0)) {
 			Input.setMousePosition(centerPosition);
 			Input.setCursor(false);
 			mouseLocked = true;
+            wasInput = true;
 		}
 
 		if (mouseLocked) {
@@ -72,14 +76,36 @@ public class Camera {
 			if (rotY) yaw(deltaPos.getX());
 			if (rotX) pitch(-deltaPos.getY());
 			if (rotY || rotX) Input.setMousePosition(centerPosition);
+
+            wasInput = true;
 		}
 
-		if (isKeyDown(KEY_W)) forward(MOVSPEED * (float) Time.getDelta());
-		if (isKeyDown(KEY_S)) forward(-MOVSPEED * (float) Time.getDelta());
-		if (isKeyDown(KEY_A)) sideward(STRAFESPEED * (float) Time.getDelta());
-		if (isKeyDown(KEY_D)) sideward(-STRAFESPEED * (float) Time.getDelta());
-		if (isKeyDown(KEY_SPACE)) upward(-MOVSPEED * (float) Time.getDelta());
-		if (isKeyDown(KEY_LSHIFT)) upward(MOVSPEED * (float) Time.getDelta());
+		if (isKeyDown(KEY_W)) {
+            forward(MOVSPEED * (float) Time.getDelta());
+            wasInput = true;
+        }
+		if (isKeyDown(KEY_S)) {
+            forward(-MOVSPEED * (float) Time.getDelta());
+            wasInput = true;
+        }
+		if (isKeyDown(KEY_A)) {
+            sideward(STRAFESPEED * (float) Time.getDelta());
+            wasInput = true;
+        }
+		if (isKeyDown(KEY_D)) {
+            sideward(-STRAFESPEED * (float) Time.getDelta());
+            wasInput = true;
+        }
+		if (isKeyDown(KEY_SPACE)) {
+            upward(-MOVSPEED * (float) Time.getDelta());
+            wasInput = true;
+        }
+		if (isKeyDown(KEY_LSHIFT)) {
+            upward(MOVSPEED * (float) Time.getDelta());
+            wasInput = true;
+        }
+
+        return wasInput;
 	}
 
 	public void apply() {
