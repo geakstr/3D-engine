@@ -11,8 +11,8 @@ public class Game {
 	
 	public static final int WIDTH = 600;
 	public static final int HEIGHT = 600;
-	public static final boolean VSYNC_ENABLED = false;
-	public static final boolean RESIZE_ENABLED = true;
+	public static final boolean VSYNC_ENABLED = true;
+	public static final boolean RESIZE_ENABLED = false;
 	public static final boolean FULLSCREEN_ENABLED = false;
 	public static final double FRAME_CAP = 60.0;
 
@@ -84,7 +84,7 @@ public class Game {
 				frames++;
 			} else {
 				try {
-					Thread.sleep(1);
+					Thread.sleep(5);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

@@ -111,6 +111,7 @@ public class ResourceBuffer {
             }
             models.put(name, model);
         }
+        loadBuffers();
     }
 
     public static void loadBuffers() {

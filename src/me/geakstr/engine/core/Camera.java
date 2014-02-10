@@ -85,7 +85,7 @@ public class Camera {
 	public void apply() {
 		view.setIdentity();
 
-		 // Rotate the view
+		// Rotate the view
         Matrix4f.rotate((float) Math.toRadians(rotation.x), Vector3f.xAxis, view, view);
         Matrix4f.rotate((float) Math.toRadians(rotation.y), Vector3f.yAxis, view, view);
         Matrix4f.rotate((float) Math.toRadians(rotation.z), Vector3f.zAxis, view, view);
