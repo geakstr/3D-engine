@@ -15,9 +15,9 @@ void main()
 
 
     // Combine the texture color and the vertex color
-    gl_FragColor = vec4(texColor.rgb * vColor.rgb, texColor.a * vColor.a);
+    vec4 color = vec4(texColor.rgb * vColor.rgb, texColor.a * vColor.a);
 
     float z = gl_FragCoord.z / gl_FragCoord.w;
     float fog = clamp(exp(-fogdensity * z * z), 0.2, 1);
-    gl_FragColor = mix(fogcolor, gl_FragColor, fog);
+    gl_FragColor = mix(fogcolor, color, fog);
 }
