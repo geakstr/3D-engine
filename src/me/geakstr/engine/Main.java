@@ -27,7 +27,7 @@ public class Main extends Game {
     }
 
     private int tick;
-
+//blah-blah-blah
 
     public void init() {
         glClearColor(0.9f, 0.9f, 0.9f, 1f);
