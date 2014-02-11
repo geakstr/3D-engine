@@ -1,31 +1,33 @@
 package me.geakstr.engine.core;
 
 import org.lwjgl.LWJGLException;
+import org.lwjgl.Sys;
 import org.lwjgl.opengl.ContextAttribs;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.PixelFormat;
 
-public class Game implements Runnable{
-	private static Game instance;
+import static org.lwjgl.opengl.GL11.*;
 
-	public static final int WIDTH = 600;
-	public static final int HEIGHT = 600;
-	public static final boolean VSYNC_ENABLED = true;
-	public static final boolean RESIZE_ENABLED = false;
-	public static final boolean FULLSCREEN_ENABLED = false;
-	public static final double FRAME_CAP = 60;
+public class Game implements Runnable {
+    private static Game instance;
+
+
+    public static final int WIDTH = 600;
+    public static final int HEIGHT = 600;
+    public static final boolean VSYNC_ENABLED = true;
+    public static final boolean RESIZE_ENABLED = false;
+    public static final boolean FULLSCREEN_ENABLED = false;
+    public static final int FRAME_CAP = 89;
 
     public static String RES_DIR;
 
     public Game(String resDir) {
         RES_DIR = resDir;
+        instance = this;
         try {
-            instance = this;
             Display.create();
-            Display.setVSyncEnabled(VSYNC_ENABLED);
-            Display.setResizable(RESIZE_ENABLED);
-            setDisplayMode(WIDTH, HEIGHT, FULLSCREEN_ENABLED);
+            Window.setDisplayMode(WIDTH, HEIGHT, FULLSCREEN_ENABLED);
             run();
         } catch (LWJGLException e) {
             e.printStackTrace();
@@ -33,148 +35,62 @@ public class Game implements Runnable{
         }
     }
 
-	public Game(String resDir, int majorGL, int minorGL) {
-        RES_DIR = resDir;
-		try {
-			instance = this;
-			Display.create(new PixelFormat(), new ContextAttribs(majorGL, minorGL).withForwardCompatible(true).withProfileCore(true));
-			Display.setVSyncEnabled(VSYNC_ENABLED);
-			Display.setResizable(RESIZE_ENABLED);
-			setDisplayMode(WIDTH, HEIGHT, FULLSCREEN_ENABLED);
-			run();
-		} catch (LWJGLException e) {
-			e.printStackTrace();
-			System.exit(-1);
-		}
-    }
+    long lastFrame, lastFPS;
+    int fps;
 
-	public void run() {
-
+    public void run() {
         init();
-
-        int frames = 0;
-		long frameCounter = 0;
-
-		final double frameTime = Time.frameTime;
-
-		long lastTime = Time.getTime();
-		double unprocessedTime = 0;
-
+        getDelta();
+        lastFPS = getTime();
         while (!Display.isCloseRequested()) {
-        	boolean render = false;
-        	long startTime = Time.getTime();
-			long passedTime = startTime - lastTime;
-			lastTime = startTime;
-			unprocessedTime += passedTime / (double) Time.SECOND;
-			frameCounter += passedTime;
-
-			while (unprocessedTime > frameTime) {
-				render = true;
-				unprocessedTime -= frameTime;
-				if (Display.isCloseRequested()) end();
-				update();
-				if (frameCounter > Time.SECOND) {
-                    Display.setTitle("3D Engine [FPS: " + frames + "]");
-					frames = 0;
-					frameCounter = 0;
-				}
-			}
-			if (render) {
-				Display.update();
-				render();
-				frames++;
-			} else {
-				try {
-					Thread.sleep(1);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+            update(getDelta());
+            render();
+            Display.update();
+            if (Window.wasResized()) Window.resized();
+            Display.sync(FRAME_CAP);
         }
         end();
-	}
+    }
 
-	public static void switchFullscreen() {
-		setFullscreen(!Display.isFullscreen());
-	}
+    public int getDelta() {
+        long time = getTime();
+        int delta = (int) (time - lastFrame);
+        lastFrame = time;
 
-	public static void setFullscreen(boolean fullscreen) {
-		setDisplayMode(Display.getDisplayMode(), fullscreen);
-	}
+        return delta;
+    }
 
-	public static boolean setDisplayMode(DisplayMode mode, boolean fullscreen) {
-		return setDisplayMode(mode.getWidth(), mode.getHeight(), fullscreen);
-	}
+    public long getTime() {
+        return (Sys.getTime() * 1000) / Sys.getTimerResolution();
+    }
 
-	public static boolean setDisplayMode(DisplayMode mode) {
-		return setDisplayMode(mode, false);
-	}
+    public void updateFPS() {
+        if (getTime() - lastFPS > 1000) {
+            Display.setTitle("3D game engine [FPS: " + fps + "]");
+            fps = 0;
+            lastFPS += 1000;
+        }
+        fps++;
+    }
 
-	public static boolean setDisplayMode(int width, int height) {
-		return setDisplayMode(width, height, false);
-	}
+    public static void end() {
+        instance.dispose();
+        instance = null;
+        Display.destroy();
+        System.exit(0);
+    }
 
-	public static boolean setDisplayMode(int width, int height, boolean fullscreen) {
-		if ((Display.getDisplayMode().getWidth() == width) && (Display.getDisplayMode().getHeight() == height) && (Display.isFullscreen() == fullscreen))
-			return true;
-		try {
-			DisplayMode targetDisplayMode = null;
+    public void init() {
+        Display.setVSyncEnabled(VSYNC_ENABLED);
+        Display.setResizable(RESIZE_ENABLED);
+    }
 
-			if (fullscreen) {
-				DisplayMode[] modes = Display.getAvailableDisplayModes();
-				int freq = 0;
+    public void update(int delta) {
+    }
 
-				for (DisplayMode current : modes) {
-					if ((current.getWidth() == width) && (current.getHeight() == height)) {
-						if ((targetDisplayMode == null) || (current.getFrequency() >= freq)) {
-							if ((targetDisplayMode == null) || (current.getBitsPerPixel() > targetDisplayMode.getBitsPerPixel())) {
-								targetDisplayMode = current;
-								freq = targetDisplayMode.getFrequency();
-							}
-						}
-						if ((current.getBitsPerPixel() == Display.getDesktopDisplayMode().getBitsPerPixel()) && (current.getFrequency() == Display.getDesktopDisplayMode().getFrequency())) {
-							targetDisplayMode = current;
-							break;
-						}
-					}
-				}
-			} else {
-				targetDisplayMode = new DisplayMode(width, height);
-			}
+    public void render() {
+    }
 
-			if (targetDisplayMode == null) {
-				System.out.println("Failed to find value mode: " + width + "x" + height + " fs=" + fullscreen);
-				return false;
-			}
-
-			Display.setDisplayMode(targetDisplayMode);
-			Display.setFullscreen(fullscreen);
-
-			System.out.println("Selected DisplayMode: " + targetDisplayMode.toString());
-
-			instance.resized();
-			return true;
-		} catch (LWJGLException e) {
-			System.out.println("Unable to setup mode " + width + "x" + height + " fullscreen=" + fullscreen + e);
-		}
-
-		return false;
-	}
-
-	public static void end() {
-		instance.dispose();
-		instance = null;
-		Display.destroy();
-		System.exit(0);
-	}
-
-	public void init() {}
-
-	public void update() {}
-
-	public void render() {}
-
-	public void resized() {}
-
-	public void dispose() {}
+    public void dispose() {
+    }
 }
