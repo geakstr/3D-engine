@@ -38,7 +38,7 @@ public class Main extends Game {
         glMatrixMode(GL_MODELVIEW);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-        camera = new Camera(70, (float) Display.getWidth() / (float) Display.getHeight(), 0.1f, 256f);
+        camera = new Camera(70, (float) Display.getWidth() / (float) Display.getHeight(), 0.1f, 70f);
         camera.setPosition(0, 0, 0);
 
         frustum = new Frustum();
