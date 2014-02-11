@@ -33,7 +33,7 @@ public class Camera {
 	public static final float ROTSPEEDX = 70.0f;
 
 	public Camera() {
-		this(70, (float) Display.getWidth() / (float) Display.getHeight(), 0.1f, 100f);
+		this(70, (float) Display.getWidth() / (float) Display.getHeight(), 0.1f, 70f);
 	}
 	
 	public Camera(float fov, float aspect, float zNear, float zFar) {
