@@ -4,8 +4,11 @@ import me.geakstr.engine.core.*;
 import me.geakstr.engine.model.Model;
 
 import me.geakstr.engine.model.ResourceBuffer;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GLContext;
+
+import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -25,9 +28,18 @@ public class Main extends Game {
 
     private int tick;
 
+
     public void init() {
-        camera = new Camera(70, (float) Display.getWidth() / (float) Display.getHeight(), 0.1f, 70f);
-        camera.setPosition(0, 0, -8);
+        glClearColor(0.9f, 0.9f, 0.9f, 1f);
+        glClearDepth(1.0f);
+        glDepthFunc(GL_LEQUAL);
+        glEnable(GL_DEPTH_TEST);
+        glShadeModel(GL_SMOOTH);
+        glMatrixMode(GL_MODELVIEW);
+        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+        camera = new Camera(70, (float) Display.getWidth() / (float) Display.getHeight(), 0.1f, 256f);
+        camera.setPosition(0, 0, 0);
 
         frustum = new Frustum();
 
@@ -38,13 +50,14 @@ public class Main extends Game {
 
         transform = new Transform();
 
+
+
         ResourceBuffer.loadModels("cube/cube.obj");
         Model box = ResourceBuffer.getModels().get("cube/cube.obj");
         int id = box.getId();
 
         world = new World(5, 16, 256);
 
-        System.out.println(world.getLength() + " " + world.getWidth() + " " + world.getHeight());
         for (int x = 0; x < world.getWidth(); x += 1) {
             for (int z = 0, ang = 0; z < world.getLength(); z += 1) {
                 for (int y = 0; y < world.getHeight(); y += 1) {
@@ -58,23 +71,16 @@ public class Main extends Game {
 
         tick = 0;
 
-        glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
-        glClearDepth (1.0f);                                        // Depth Buffer Setup
-        glDepthFunc (GL_LEQUAL);                                    // The Type Of Depth Testing (Less Or Equal)
-        glEnable (GL_DEPTH_TEST);                                   // Enable Depth Testing
-        glShadeModel (GL_SMOOTH);                                   // Select Smooth Shading
-        glHint (GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-        System.out.println(GLContext.getCapabilities().GL_EXT_framebuffer_object);
     }
 
-    public void update() {
+    public void update(int delta) {
         wasInput = camera.input();
+        updateFPS();
     }
 
     public void render() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
 
         camera.apply();
 
@@ -90,12 +96,11 @@ public class Main extends Game {
         baseShader.setUniform("lightPos", camera.getPosition());
         baseShader.setUniform("texture", 0);
 
-
         for (int x = 0; x < world.getWidth(); x += 1) {
             for (int z = 0; z < world.getLength(); z += 1) {
                 for (int y = 0; y < world.getHeight(); y += 1) {
                     int id = world.getModelFromMap(x, y, z);
-                    if (id != 0 && frustum.checkCube(x, y, z, 1) >= 1 && !world.isSurrounded(x, y, z)) {
+                    if (id != 0 && !world.isSurrounded(x, y, z) && frustum.checkCube(x, y, z, 1) >= 1) {
                         Model.render(id, x, y, z, 0, 0, 0, 0.5f, 0.5f, 0.5f, baseShader);
                     }
                 }
@@ -114,9 +119,7 @@ public class Main extends Game {
         baseShader.unbind();
     }
 
-    public void resized() {
-        glViewport(0, 0, Display.getWidth(), Display.getHeight());
-    }
+
 
     public void dispose() {
         for (Model model : ResourceBuffer.getModels().values()) model.dispose();
