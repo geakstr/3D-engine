@@ -2,7 +2,7 @@ package me.geakstr.engine.core;
 
 import me.geakstr.engine.Main;
 
-public class Time {
+public class Timing {
 
 	public static final long SECOND = 1000000000L;
 	public static final double frameTime = 1.0 / Main.FRAME_CAP * 1.0;
@@ -17,6 +17,6 @@ public class Time {
 	}
 
 	public static void setDelta(double delta) {
-		Time.delta = delta;
+		Timing.delta = delta;
 	}
 }
