@@ -81,27 +81,27 @@ public class Camera {
 		}
 
 		if (isKeyDown(KEY_W)) {
-            forward(MOVSPEED * (float) Time.getDelta());
+            forward(MOVSPEED * (float) Timing.getDelta());
             wasInput = true;
         }
 		if (isKeyDown(KEY_S)) {
-            forward(-MOVSPEED * (float) Time.getDelta());
+            forward(-MOVSPEED * (float) Timing.getDelta());
             wasInput = true;
         }
 		if (isKeyDown(KEY_A)) {
-            sideward(STRAFESPEED * (float) Time.getDelta());
+            sideward(STRAFESPEED * (float) Timing.getDelta());
             wasInput = true;
         }
 		if (isKeyDown(KEY_D)) {
-            sideward(-STRAFESPEED * (float) Time.getDelta());
+            sideward(-STRAFESPEED * (float) Timing.getDelta());
             wasInput = true;
         }
 		if (isKeyDown(KEY_SPACE)) {
-            upward(-MOVSPEED * (float) Time.getDelta());
+            upward(-MOVSPEED * (float) Timing.getDelta());
             wasInput = true;
         }
 		if (isKeyDown(KEY_LSHIFT)) {
-            upward(MOVSPEED * (float) Time.getDelta());
+            upward(MOVSPEED * (float) Timing.getDelta());
             wasInput = true;
         }
 
