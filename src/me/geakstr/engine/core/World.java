@@ -7,13 +7,8 @@ public class World {
     // world[x][z][y]
     private int[][][] world;
 
-    // X
-    private int length;
-
-    // Z
     private int width;
-
-    // Y
+    private int length;
     private int height;
 
     public World(int width, int length, int height) {
