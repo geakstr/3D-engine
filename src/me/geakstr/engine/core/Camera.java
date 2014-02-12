@@ -1,15 +1,14 @@
 package me.geakstr.engine.core;
 
-
-import static org.lwjgl.input.Keyboard.isKeyDown;
-
-import me.geakstr.engine.math.Vector2f;
-import static me.geakstr.engine.core.Input.*;
-import me.geakstr.engine.math.Vector3f;
 import me.geakstr.engine.math.Matrix4f;
+import me.geakstr.engine.math.Vector2f;
+import me.geakstr.engine.math.Vector3f;
 import me.geakstr.engine.utils.MatrixUtil;
-
 import org.lwjgl.opengl.Display;
+
+import static me.geakstr.engine.core.Input.*;
+import me.geakstr.engine.core.*;
+import static org.lwjgl.input.Keyboard.isKeyDown;
 
 public class Camera {
 	private float fov;
