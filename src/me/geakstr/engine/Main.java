@@ -52,7 +52,7 @@ public class Main extends Game {
 
 
 
-        ResourceBuffer.loadModels("cube/cube.obj");
+        ResourceBuffer.loadModels("axe/axe.obj", "cube/cube.obj");
         Model box = ResourceBuffer.getModels().get("cube/cube.obj");
         int id = box.getId();
 
