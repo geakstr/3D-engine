@@ -213,20 +213,20 @@ public class ResourceBuffer {
             glEnableClientState(GL_COLOR_ARRAY);
             if (isTextured) {
                 glEnable(GL_TEXTURE_2D);
-                glBindTexture(GL_TEXTURE_2D, ResourceBuffer.getTexturesID(modelID));
+                glBindTexture(GL_TEXTURE_2D, ResourceBuffer.getTexturesID(id));
 
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-                glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboTextureID(modelID));
+                glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboTextureID(id));
                 glTexCoordPointer(2, GL_FLOAT, 0, 0);
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
             }
 
-            glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboNormalID(modelID));
+            glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboNormalID(id));
             glNormalPointer(GL_FLOAT, 0, 0);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-            glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboColorlID(modelID));
+            glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboColorlID(id));
             glColorPointer(3, GL_FLOAT, 0, 0);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
