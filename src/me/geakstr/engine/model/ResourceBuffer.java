@@ -16,10 +16,11 @@ import java.util.*;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL12.*;
 
 
 public class ResourceBuffer {
-    private static int modelID = 0;
+    private static int modelsCount = 0;
 
     private static Map<String, Model> models = new HashMap<String, Model>();
     private static Map<Integer, Texture> textures = new HashMap<Integer, Texture>();
@@ -40,17 +41,19 @@ public class ResourceBuffer {
 
     public static void loadModels(String... modelsNames) {
         for (String name : modelsNames) {
-            ++modelID;
+            ++modelsCount;
 
-            Model model = new Model(modelID);
+            int id = modelsCount;
+
+            Model model = new Model(id);
             Material material = null;
 
-            vertices.put(modelID, new ArrayList<Vector3f>());
-            normals.put(modelID, new ArrayList<Vector3f>());
-            texCoords.put(modelID, new ArrayList<Vector2f>());
-            textured.put(modelID, false);
-            faces.put(modelID, new ArrayList<Face>());
-            materials.put(modelID, new HashMap<String, Material>());
+            vertices.put(id, new ArrayList<Vector3f>());
+            normals.put(id, new ArrayList<Vector3f>());
+            texCoords.put(id, new ArrayList<Vector2f>());
+            textured.put(id, false);
+            faces.put(id, new ArrayList<Face>());
+            materials.put(id, new HashMap<String, Material>());
 
             String path = Game.RES_DIR + "/models/" + name;
 
@@ -63,21 +66,21 @@ public class ResourceBuffer {
                     float x = Float.parseFloat(tokens[1]);
                     float y = Float.parseFloat(tokens[2]);
                     float z = Float.parseFloat(tokens[3]);
-                    vertices.get(modelID).add(new Vector3f(x, y, z));
+                    vertices.get(id).add(new Vector3f(x, y, z));
                 }
                 // Vertex normal
                 else if (line.startsWith("vn ")) {
                     float x = Float.parseFloat(tokens[1]);
                     float y = Float.parseFloat(tokens[2]);
                     float z = Float.parseFloat(tokens[3]);
-                    normals.get(modelID).add(new Vector3f(x, y, z));
+                    normals.get(id).add(new Vector3f(x, y, z));
                 }
                 // Texture coord
                 else if (line.startsWith("vt ")) {
                     float x = Float.parseFloat(tokens[1]);
                     float y = Float.parseFloat(tokens[2]);
-                    texCoords.get(modelID).add(new Vector2f(x, y));
-                    textured.put(modelID, true);
+                    texCoords.get(id).add(new Vector2f(x, y));
+                    textured.put(id, true);
                 }
                 // Face
                 else if (line.startsWith("f ")) {
@@ -92,21 +95,21 @@ public class ResourceBuffer {
                     Vector3f normal = new Vector3f(vn1, vn2, vn3);
 
                     Vector3f texCoords = null;
-                    if (textured.get(modelID)) {
+                    if (textured.get(id)) {
                         float vt1 = Float.parseFloat(tokens[1].split("/")[1]);
                         float vt2 = Float.parseFloat(tokens[2].split("/")[1]);
                         float vt3 = Float.parseFloat(tokens[3].split("/")[1]);
                         texCoords = new Vector3f(vt1, vt2, vt3);
                     }
-                    faces.get(modelID).add(new Face(vertex, normal, texCoords, material));
+                    faces.get(id).add(new Face(vertex, normal, texCoords, material));
                 }
                 // Material definitions
                 else if (line.startsWith("mtllib ")) {
-                    parseMaterial(path, line.replaceAll("mtllib ", "").trim());
+                    parseMaterial(id, path, line.replaceAll("mtllib ", "").trim());
                 }
                 // Material to use for upcoming faces
                 else if (line.startsWith("usemtl ")) {
-                    material = materials.get(modelID).get(line.replaceAll("usemtl ", "").trim());
+                    material = materials.get(id).get(line.replaceAll("usemtl ", "").trim());
                 }
             }
             models.put(name, model);
@@ -207,32 +210,6 @@ public class ResourceBuffer {
                 glBufferData(GL_ARRAY_BUFFER, textureBuffer, GL_STATIC_DRAW);
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
             }
-
-            // Pre-render
-            glEnableClientState(GL_NORMAL_ARRAY);
-            glEnableClientState(GL_COLOR_ARRAY);
-            if (isTextured) {
-                glEnable(GL_TEXTURE_2D);
-                glBindTexture(GL_TEXTURE_2D, ResourceBuffer.getTexturesID(id));
-
-                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-                glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboTextureID(id));
-                glTexCoordPointer(2, GL_FLOAT, 0, 0);
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-            }
-
-            glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboNormalID(id));
-            glNormalPointer(GL_FLOAT, 0, 0);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-            glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboColorlID(id));
-            glColorPointer(3, GL_FLOAT, 0, 0);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-            glDisableClientState(GL_NORMAL_ARRAY);
-            glDisableClientState(GL_COLOR_ARRAY);
-            if (isTextured) glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         }
     }
 
@@ -272,6 +249,9 @@ public class ResourceBuffer {
         int textureID = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, textureID);
 
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -280,7 +260,7 @@ public class ResourceBuffer {
         return new Texture(textureID, bimg.getWidth(), bimg.getHeight());
     }
 
-    private static void parseMaterial(String path, String name) {
+    private static void parseMaterial(int id, String path, String name) {
         path = FileUtil.getFileInSameLevelOf(path, name);
 
         if (loadedTextures.contains(path)) return;
@@ -290,7 +270,7 @@ public class ResourceBuffer {
         for (String line : FileUtil.readAllLines(path)) {
             if (line.startsWith("newmtl ")) {
                 if (material != null) {
-                    materials.get(modelID).put(material.getName(), material);
+                    materials.get(id).put(material.getName(), material);
                 }
                 material = new Material(FileUtil.removeEmptyString(line.split(" ", 2))[1]);
             } else if (line.startsWith("Kd ")) {
@@ -303,11 +283,11 @@ public class ResourceBuffer {
                 material.setDiffuse(new Vector3f(r, g, b));
             } else if (line.startsWith("map_Kd ")) {
                 Texture texture = loadTexture(line.replaceAll("map_Kd", "").trim());
-                texturesID.put(modelID, texture.id);
+                texturesID.put(id, texture.id);
                 textures.put(texture.id, texture);
             }
         }
-        materials.get(modelID).put(material.getName(), material);
+        materials.get(id).put(material.getName(), material);
     }
 
     public static Map<String, Model> getModels() {
@@ -316,32 +296,36 @@ public class ResourceBuffer {
         return models;
     }
 
-    public static int getTexturesID(int modelID) {
-        return texturesID.get(modelID);
+    public static int getTexturesID(int id) {
+        return texturesID.get(id);
     }
 
-    public static List<Vector3f> getVertices(int modelID) {
-        return vertices.get(modelID);
+    public static List<Vector3f> getVertices(int id) {
+        return vertices.get(id);
     }
 
-    public static List<Face> getFaces(int modelID) {
-        return faces.get(modelID);
+    public static List<Face> getFaces(int id) {
+        return faces.get(id);
     }
 
-    public static boolean getTextured(int modelID) {
-        return textured.get(modelID);
+    public static Texture getTexture(int id) {
+        return textures.get(id);
     }
 
-    public static int getVboVertexID(int modelID) {
-        return vboVertexID.get(modelID);
+    public static boolean getTextured(int id) {
+        return textured.get(id);
     }
 
-    public static int getVboNormalID(int modelID) {
-        return vboNormalID.get(modelID);
+    public static int getVboVertexID(int id) {
+        return vboVertexID.get(id);
     }
 
-    public static int getVboColorlID(int modelID) {
-        return vboColorID.get(modelID);
+    public static int getVboNormalID(int id) {
+        return vboNormalID.get(id);
+    }
+
+    public static int getVboColorlID(int id) {
+        return vboColorID.get(id);
     }
 
     public static int getVboTextureID(int modelID) {
