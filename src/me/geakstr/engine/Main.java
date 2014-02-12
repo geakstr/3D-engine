@@ -9,6 +9,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GLContext;
 
 import java.nio.FloatBuffer;
+import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -32,6 +33,7 @@ public class Main extends Game {
     public void init() {
         glClearColor(0.9f, 0.9f, 0.9f, 1f);
         glClearDepth(1.0f);
+        glEnable(GL_TEXTURE_2D);
         glDepthFunc(GL_LEQUAL);
         glEnable(GL_DEPTH_TEST);
         glShadeModel(GL_SMOOTH);
@@ -52,17 +54,19 @@ public class Main extends Game {
 
 
 
-        ResourceBuffer.loadModels("axe/axe.obj", "cube/cube.obj");
+        ResourceBuffer.loadModels("cube/cube.obj", "axe/axe.obj");
         Model box = ResourceBuffer.getModels().get("cube/cube.obj");
-        int id = box.getId();
+        Model axe = ResourceBuffer.getModels().get("axe/axe.obj");
 
-        world = new World(5, 16, 256);
 
+        world = new World(10, 10, 1);
+
+        Random rnd = new Random();
         for (int x = 0; x < world.getWidth(); x += 1) {
             for (int z = 0, ang = 0; z < world.getLength(); z += 1) {
                 for (int y = 0; y < world.getHeight(); y += 1) {
                     //world.setModelToMap(box.clone(x, y, z, ang, ang, ang, 0.5f, 0.5f, 0.5f));
-                    world.setModelToMap(id, x, y, z);
+                    world.setModelToMap(rnd.nextInt(2) + 1, x, y, z);
                 }
             }
         }
@@ -100,7 +104,8 @@ public class Main extends Game {
             for (int z = 0; z < world.getLength(); z += 1) {
                 for (int y = 0; y < world.getHeight(); y += 1) {
                     int id = world.getModelFromMap(x, y, z);
-                    if (id != 0 && !world.isSurrounded(x, y, z) && frustum.checkCube(x, y, z, 1) >= 1) {
+                    // && frustum.checkCube(x, y, z, 1) >= 1
+                    if (id != 0 && !world.isSurrounded(x, y, z)) {
                         Model.render(id, x, y, z, 0, 0, 0, 0.5f, 0.5f, 0.5f, baseShader);
                     }
                 }
@@ -109,11 +114,11 @@ public class Main extends Game {
 
         tick++;
         if (tick == 5) {
-            world.setNullToMap(0, 2, 2);
-            world.setNullToMap(1, 2, 2);
-            world.setNullToMap(2, 2, 2);
-            world.setNullToMap(3, 2, 2);
-            world.setNullToMap(4, 2, 2);
+//            world.setNullToMap(0, 2, 2);
+//            world.setNullToMap(1, 2, 2);
+//            world.setNullToMap(2, 2, 2);
+//            world.setNullToMap(3, 2, 2);
+//            world.setNullToMap(4, 2, 2);
         }
 
         baseShader.unbind();

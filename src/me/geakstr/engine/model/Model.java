@@ -69,7 +69,22 @@ public class Model {
         glEnableClientState(GL_COLOR_ARRAY);
 
         boolean isTextured = ResourceBuffer.getTextured(id);
-        if (isTextured) glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        if (isTextured) {
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glBindTexture(GL_TEXTURE_2D, ResourceBuffer.getTexturesID(id));
+            glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboTextureID(id));
+            glTexCoordPointer(2, GL_FLOAT, 0, 0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+
+        glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboNormalID(id));
+        glNormalPointer(GL_FLOAT, 0, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboColorlID(id));
+        glColorPointer(3, GL_FLOAT, 0, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboVertexID(id));
         glVertexPointer(3, GL_FLOAT, 0, 0);
@@ -87,7 +102,6 @@ public class Model {
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
-
         if (isTextured) glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     }
 
