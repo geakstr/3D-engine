@@ -75,16 +75,13 @@ public class Model {
             glBindTexture(GL_TEXTURE_2D, ResourceBuffer.getTexturesID(id));
             glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboTextureID(id));
             glTexCoordPointer(2, GL_FLOAT, 0, 0);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboNormalID(id));
         glNormalPointer(GL_FLOAT, 0, 0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboColorlID(id));
         glColorPointer(3, GL_FLOAT, 0, 0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboVertexID(id));
         glVertexPointer(3, GL_FLOAT, 0, 0);
