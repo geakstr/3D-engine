@@ -29,6 +29,7 @@ public class Main extends Game {
 
     private int tick;
 
+    private int boxID;
 
     public void init() {
         glClearColor(0.9f, 0.9f, 0.9f, 1f);
@@ -52,12 +53,8 @@ public class Main extends Game {
 
         transform = new Transform();
 
-
-
         ResourceBuffer.loadModels("cube/cube.obj", "axe/axe.obj");
-        Model box = ResourceBuffer.getModels().get("cube/cube.obj");
-        Model axe = ResourceBuffer.getModels().get("axe/axe.obj");
-
+        boxID = ResourceBuffer.getModels().get("cube/cube.obj").getId();
 
         world = new World(10, 10, 1);
 
@@ -74,8 +71,6 @@ public class Main extends Game {
         wasInput = true;
 
         tick = 0;
-
-
     }
 
     public void update(int delta) {
@@ -104,8 +99,7 @@ public class Main extends Game {
             for (int z = 0; z < world.getLength(); z += 1) {
                 for (int y = 0; y < world.getHeight(); y += 1) {
                     int id = world.getModelFromMap(x, y, z);
-                    // && frustum.checkCube(x, y, z, 1) >= 1
-                    if (id != 0 && !world.isSurrounded(x, y, z)) {
+                    if (id != 0 && !world.isSurrounded(x, y, z) && (id != boxID || (id == boxID && frustum.checkCube(x, y, z, 1) >= 1))) {
                         Model.render(id, x, y, z, 0, 0, 0, 0.5f, 0.5f, 0.5f, baseShader);
                     }
                 }
