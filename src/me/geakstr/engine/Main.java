@@ -53,17 +53,18 @@ public class Main extends Game {
 
         transform = new Transform();
 
-        ResourceBuffer.loadModels("cube/cube.obj", "axe/axe.obj");
-        boxID = ResourceBuffer.getModels().get("cube/cube.obj").getId();
+        ResourceBuffer.loadModels("cube/cube.obj");
+        Model box = ResourceBuffer.getModels().get("cube/cube.obj");
+        boxID = box.getId();
 
-        world = new World(10, 10, 1);
+        world = new World(16, 16, 256);
 
         Random rnd = new Random();
         for (int x = 0; x < world.getWidth(); x += 1) {
-            for (int z = 0, ang = 0; z < world.getLength(); z += 1) {
+            for (int z = 0; z < world.getLength(); z += 1) {
                 for (int y = 0; y < world.getHeight(); y += 1) {
-                    //world.setModelToMap(box.clone(x, y, z, ang, ang, ang, 0.5f, 0.5f, 0.5f));
-                    world.setModelToMap(rnd.nextInt(2) + 1, x, y, z);
+                    world.setModelToMap(boxID, x, y, z);
+                    //world.setModelToMap(rnd.nextInt(2) + 1, x, y, z);
                 }
             }
         }
