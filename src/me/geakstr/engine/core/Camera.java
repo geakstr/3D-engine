@@ -7,7 +7,6 @@ import me.geakstr.engine.utils.MatrixUtil;
 import org.lwjgl.opengl.Display;
 
 import static me.geakstr.engine.core.Input.*;
-import me.geakstr.engine.core.*;
 import static org.lwjgl.input.Keyboard.isKeyDown;
 
 public class Camera {
