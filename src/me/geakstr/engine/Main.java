@@ -57,11 +57,11 @@ public class Main extends Game {
         Model box = ResourceBuffer.getModels().get("cube/near.obj");
         boxID = box.getId();
 
-        world = new World(256, 1, 256);
+        world = new World(10, 15, 5);
 
         Random rnd = new Random();
-        for (int x = 0; x < world.getWidth(); x += 1) {
-            for (int z = 0; z < world.getLength(); z += 1) {
+        for (int x = 0; x < world.getLength(); x += 1) {
+            for (int z = 0; z < world.getWidth(); z += 1) {
                 for (int y = 0; y < world.getHeight(); y += 1) {
                     world.setModelToMap(boxID, x, y, z);
                     //world.setModelToMap(rnd.nextInt(2) + 1, x, y, z);
@@ -96,8 +96,8 @@ public class Main extends Game {
         baseShader.setUniform("lightPos", camera.getPosition());
         baseShader.setUniform("texture", 0);
 
-        for (int x = 0; x < world.getWidth(); x += 1) {
-            for (int z = 0; z < world.getLength(); z += 1) {
+        for (int x = 0; x < world.getLength(); x += 1) {
+            for (int z = 0; z < world.getWidth(); z += 1) {
                 for (int y = 0; y < world.getHeight(); y += 1) {
                     int id = world.getModelFromMap(x, y, z);
                     if (id != 0 && !world.isSurrounded(x, y, z) && (id != boxID || (id == boxID && frustum.checkCube(x, y, z, 1) >= 1))) {

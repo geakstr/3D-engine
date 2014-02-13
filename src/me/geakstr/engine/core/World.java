@@ -1,41 +1,37 @@
 package me.geakstr.engine.core;
 
-import me.geakstr.engine.model.Model;
 
 public class World {
-    // world[width][length][height]
-    // world[x][z][y]
+    // world[length][height][width]; world[x][y][z]
     private int[][][] world;
 
-    private int width;
-    private int length;
-    private int height;
+    private int length, width, height;
 
-    public World(int width, int length, int height) {
+    public World(int length, int height, int width) {
         this.length = length;
-        this.width = width;
         this.height = height;
-        this.world = new int[width][length][height];
+        this.width = width;
+        this.world = new int[length][height][width];
     }
 
     public void setModelToMap(int model, int x, int y, int z) {
-        world[x][z][y] = model;
+        world[x][y][z] = model;
     }
 
     public void setNullToMap(int x, int y, int z) {
-        world[x][z][y] = 0;
+        world[x][y][z] = 0;
     }
 
     public int getModelFromMap(int x, int y, int z) {
-        return world[x][z][y];
+        return world[x][y][z];
     }
 
     public boolean isSurrounded(int x, int y, int z) {
-        if (x == width - 1 || y == height - 1 || z == length - 1 || x == 0 || y == 0 || z == 0)
+        if (x == length - 1 || y == height - 1 || z == width - 1 || x == 0 || y == 0 || z == 0)
             return false;
-        if (world[x - 1][z][y] != 0 && world[x + 1][z][y] != 0)
-            if (world[x][z - 1][y] != 0 && world[x][z + 1][y] != 0)
-                if (world[x][z][y - 1] != 0 && world[x][z][y + 1] != 0)
+        if (world[x - 1][y][z] != 0 && world[x + 1][y][z] != 0)
+            if (world[x][y - 1][z] != 0 && world[x][y + 1][z] != 0)
+                if (world[x][y][z - 1] != 0 && world[x][y][z + 1] != 0)
                     return true;
         return false;
     }
