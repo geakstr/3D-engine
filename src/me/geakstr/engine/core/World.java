@@ -1,29 +1,48 @@
 package me.geakstr.engine.core;
 
-
 public class World {
     // world[length][height][width]; world[x][y][z]
     private int[][][] world;
 
     private int length, width, height;
 
-    public World(int length, int height, int width) {
+    private int cubeId;
+
+    public World(int length, int height, int width, int cubeId) {
         this.length = length;
         this.height = height;
         this.width = width;
+        this.cubeId = cubeId;
         this.world = new int[length][height][width];
     }
 
-    public void setModelToMap(int model, int x, int y, int z) {
-        world[x][y][z] = model;
+    public void gen() {
+        for (int x = 0; x < length; x++) {
+            for (int z = 0; z < width; z++) {
+                for (int y = 0; y < height; y++) {
+                    setCube(x, y, z);
+                }
+            }
+        }
     }
 
-    public void setNullToMap(int x, int y, int z) {
-        world[x][y][z] = 0;
+    public void render(Frustum frustum, Shader shader) {
+        RenderEngine.start(cubeId);
+        for (int x = 0; x < length; x++) {
+            for (int z = 0; z < width; z++) {
+                for (int y = 0; y < height; y++) {
+                    int id = get(x, y, z);
+                    if (isRenderableCube(id, x, y, z, frustum)) {
+                        RenderEngine.render(id, x, y, z, shader);
+                    }
+                }
+            }
+        }
+        RenderEngine.end(cubeId);
     }
 
-    public int getModelFromMap(int x, int y, int z) {
-        return world[x][y][z];
+    public boolean isRenderableCube(int id, int x, int y, int z, Frustum frustum) {
+        return id == cubeId && !isSurrounded(x, y, z) && frustum.checkCube(x, y, z, 1) >= 1;
     }
 
     public boolean isSurrounded(int x, int y, int z) {
@@ -34,6 +53,22 @@ public class World {
                 if (world[x][y][z - 1] != 0 && world[x][y][z + 1] != 0)
                     return true;
         return false;
+    }
+
+    public void set(int id, int x, int y, int z) {
+        world[x][y][z] = id;
+    }
+
+    public void setCube(int x, int y, int z) {
+        set(cubeId, x, y, z);
+    }
+
+    public void setAir(int x, int y, int z) {
+        set(0, x, y, z);
+    }
+
+    public int get(int x, int y, int z) {
+        return world[x][y][z];
     }
 
     public int[][][] getWorld() {
