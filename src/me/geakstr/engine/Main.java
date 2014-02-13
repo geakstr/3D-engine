@@ -53,11 +53,11 @@ public class Main extends Game {
 
         transform = new Transform();
 
-        ResourceBuffer.loadModels("cube/cube.obj");
-        Model box = ResourceBuffer.getModels().get("cube/cube.obj");
+        ResourceBuffer.loadModels("cube/near.obj");
+        Model box = ResourceBuffer.getModels().get("cube/near.obj");
         boxID = box.getId();
 
-        world = new World(16, 16, 256);
+        world = new World(256, 1, 256);
 
         Random rnd = new Random();
         for (int x = 0; x < world.getWidth(); x += 1) {
