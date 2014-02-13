@@ -4,19 +4,14 @@ import me.geakstr.engine.core.*;
 import me.geakstr.engine.model.Model;
 
 import me.geakstr.engine.model.ResourceBuffer;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GLContext;
-
-import java.nio.FloatBuffer;
-import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class Main extends Game {
     private Camera camera;
     private Frustum frustum;
-    private Shader baseShader;
+    private Shader shader;
     private Transform transform;
 
     private World world;
@@ -26,10 +21,6 @@ public class Main extends Game {
     public Main(String resDir) {
         super(resDir);
     }
-
-    private int tick;
-
-    private int boxID;
 
     public void init() {
         glClearColor(0.9f, 0.9f, 0.9f, 1f);
@@ -46,32 +37,19 @@ public class Main extends Game {
 
         frustum = new Frustum();
 
-        baseShader = new Shader();
-        baseShader.attachVertexShader("shader.vert");
-        baseShader.attachFragmentShader("shader.frag");
-        baseShader.link();
+        shader = new Shader();
+        shader.attachVertexShader("shader.vert");
+        shader.attachFragmentShader("shader.frag");
+        shader.link();
 
         transform = new Transform();
 
-        ResourceBuffer.loadModels("cube/near.obj");
-        Model box = ResourceBuffer.getModels().get("cube/near.obj");
-        boxID = box.getId();
+        ResourceBuffer.loadModels("cube/cube.obj", "axe/axe.obj");
 
-        world = new World(10, 15, 5);
-
-        Random rnd = new Random();
-        for (int x = 0; x < world.getLength(); x += 1) {
-            for (int z = 0; z < world.getWidth(); z += 1) {
-                for (int y = 0; y < world.getHeight(); y += 1) {
-                    world.setModelToMap(boxID, x, y, z);
-                    //world.setModelToMap(rnd.nextInt(2) + 1, x, y, z);
-                }
-            }
-        }
+        world = new World(10, 1, 10, ResourceBuffer.getModels().get("cube/cube.obj").getId());
+        world.gen();
 
         wasInput = true;
-
-        tick = 0;
     }
 
     public void update(int delta) {
@@ -88,42 +66,32 @@ public class Main extends Game {
             frustum.update(camera.getProjectionMatrix(), camera.getViewMatrix());
         }
 
-        baseShader.bind();
-        baseShader.setUniform("mProjection", camera.getProjectionMatrix());
-        baseShader.setUniform("mView", camera.getViewMatrix());
-        baseShader.setUniform("mNormal", camera.getNormalMatrix());
-        baseShader.setUniform("mTransform", transform.getTransform());
-        baseShader.setUniform("lightPos", camera.getPosition());
-        baseShader.setUniform("texture", 0);
+        shader.bind();
+        shader.setUniform("mProjection", camera.getProjectionMatrix());
+        shader.setUniform("mView", camera.getViewMatrix());
+        shader.setUniform("mNormal", camera.getNormalMatrix());
+        shader.setUniform("mTransform", transform.getTransform());
+        shader.setUniform("lightPos", camera.getPosition());
+        shader.setUniform("texture", 0);
 
-        for (int x = 0; x < world.getLength(); x += 1) {
-            for (int z = 0; z < world.getWidth(); z += 1) {
-                for (int y = 0; y < world.getHeight(); y += 1) {
-                    int id = world.getModelFromMap(x, y, z);
-                    if (id != 0 && !world.isSurrounded(x, y, z) && (id != boxID || (id == boxID && frustum.checkCube(x, y, z, 1) >= 1))) {
-                        Model.render(id, x, y, z, 0, 0, 0, 0.5f, 0.5f, 0.5f, baseShader);
-                    }
-                }
-            }
-        }
+        world.render(frustum, shader);
 
-        tick++;
-        if (tick == 5) {
-//            world.setNullToMap(0, 2, 2);
-//            world.setNullToMap(1, 2, 2);
-//            world.setNullToMap(2, 2, 2);
-//            world.setNullToMap(3, 2, 2);
-//            world.setNullToMap(4, 2, 2);
-        }
+        Model axe = ResourceBuffer.getModels().get("axe/axe.obj");
+        int axeId = axe.getId();
+        RenderEngine.start(axeId);
+        RenderEngine.render(axeId, 5, 5, 5, shader);
+        RenderEngine.end(axeId);
 
-        baseShader.unbind();
+        shader.unbind();
     }
 
 
 
     public void dispose() {
-        for (Model model : ResourceBuffer.getModels().values()) model.dispose();
-        baseShader.dispose();
+        for (Model model : ResourceBuffer.getModels().values()) {
+            RenderEngine.dispose(model.getId());
+        }
+        shader.dispose();
     }
 
     public static void main(String[] args) {
