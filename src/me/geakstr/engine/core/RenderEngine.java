@@ -26,6 +26,8 @@ public class RenderEngine {
 
         glBindBuffer(GL_ARRAY_BUFFER, ResourceBuffer.getVboVertexID(model));
         glVertexPointer(3, GL_FLOAT, 0, 0);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ResourceBuffer.getVboIndexID(model));
     }
 
 
@@ -37,7 +39,7 @@ public class RenderEngine {
             if (scaleX != 1 || scaleY != 1 || scaleZ != 1) transform.scale(scaleX, scaleY, scaleZ);
         }
         shader.setUniform("mModelTransform", transform.getTransform());
-        glDrawArrays(GL_TRIANGLES, 0, 9 * ResourceBuffer.getFaces(model).size());
+        glDrawElements(GL_TRIANGLES, ResourceBuffer.getVboIndexSize(model), GL_UNSIGNED_INT, 0);
     }
 
     public static void render(int model, int x, int y, int z, Shader shader) {
