@@ -1,12 +1,14 @@
 package me.geakstr.engine.core;
 
+import me.geakstr.engine.model.Cube;
+
 public class World {
     // world[length][height][width]; world[x][y][z]
     private int[][][] world;
 
     private int length, width, height;
 
-    private int cubeId;
+    private static int cubeId;
 
     public World(int length, int height, int width, int cubeId) {
         this.length = length;
@@ -33,7 +35,7 @@ public class World {
                 for (int y = 0; y < height; y++) {
                     int id = get(x, y, z);
                     if (isRenderableCube(id, x, y, z, frustum)) {
-                        RenderEngine.render(id, x, y, z, shader);
+                        RenderEngine.renderCube(x, y, z, shader, new Cube.Type[]{ Cube.Type.TOP, Cube.Type.BOTTOM });
                     }
                 }
             }
@@ -86,4 +88,6 @@ public class World {
     public int getHeight() {
         return height;
     }
+
+    public static int getCubeId() { return cubeId; }
 }
