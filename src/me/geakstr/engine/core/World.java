@@ -35,7 +35,7 @@ public class World {
                 for (int y = 0; y < height; y++) {
                     int id = get(x, y, z);
                     if (isRenderableCube(id, x, y, z, frustum)) {
-                        RenderEngine.renderCube(x, y, z, shader, new Cube.Type[]{ Cube.Type.TOP, Cube.Type.BOTTOM });
+                        RenderEngine.render(x, y, z, shader, new Cube.Type[]{ Cube.Type.TOP, Cube.Type.BOTTOM });
                     }
                 }
             }
