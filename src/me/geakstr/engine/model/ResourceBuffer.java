@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.*;
 
 import static org.lwjgl.opengl.GL15.*;
@@ -34,6 +35,8 @@ public class ResourceBuffer {
     private static Map<Integer, Map<String, Material>> materials = new HashMap<Integer, Map<String, Material>>();
     private static Map<Integer, Integer> texturesID = new HashMap<Integer, Integer>();
 
+    private static Map<Integer, Integer> vboIndexSize = new HashMap<Integer, Integer>();
+    private static Map<Integer, Integer> vboIndexID = new HashMap<Integer, Integer>();
     private static Map<Integer, Integer> vboVertexID = new HashMap<Integer, Integer>();
     private static Map<Integer, Integer> vboNormalID = new HashMap<Integer, Integer>();
     private static Map<Integer, Integer> vboColorID = new HashMap<Integer, Integer>();
@@ -120,10 +123,12 @@ public class ResourceBuffer {
     public static void loadBuffers() {
         for (Model model : models.values()) {
             int id = model.getId();
+            int curVboIndexID = glGenBuffers();
             int curVboVertexID = glGenBuffers();
             int curVboNormalID = glGenBuffers();
             int curVboColorID = glGenBuffers();
 
+            vboIndexID.put(id, curVboIndexID);
             vboVertexID.put(id, curVboVertexID);
             vboNormalID.put(id, curVboNormalID);
             vboColorID.put(id, curVboColorID);
@@ -139,9 +144,11 @@ public class ResourceBuffer {
             FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(9 * size);
             FloatBuffer normalBuffer = BufferUtils.createFloatBuffer(9 * size);
             FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(9 * size);
+            IntBuffer indexBuffer = BufferUtils.createIntBuffer(9 * size);
             FloatBuffer textureBuffer = null;
             if (isTextured) textureBuffer = BufferUtils.createFloatBuffer(6 * size);
 
+            int indexSize = 0;
             for (Face face : faces.get(id)) {
                 Material material = face.getMaterial();
 
@@ -186,12 +193,21 @@ public class ResourceBuffer {
                     Vector2f t3 = texCoords.get(id).get((int) face.getTexCoord().z - 1);
                     textureBuffer.put(t3.x).put(1 - t3.y);
                 }
+                indexBuffer.put(indexSize++);
+                indexBuffer.put(indexSize++);
+                indexBuffer.put(indexSize++);
             }
+            vboIndexSize.put(id, indexSize);
             vertexBuffer.rewind();
             normalBuffer.rewind();
             colorBuffer.rewind();
+            indexBuffer.rewind();
             if (isTextured) textureBuffer.rewind();
 
+
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, curVboIndexID);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             // Bind buffers
             glBindBuffer(GL_ARRAY_BUFFER, curVboVertexID);
             glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
@@ -314,6 +330,14 @@ public class ResourceBuffer {
 
     public static boolean getTextured(int id) {
         return textured.get(id);
+    }
+
+    public static int getVboIndexID(int id) {
+        return vboIndexID.get(id);
+    }
+
+    public static int getVboIndexSize(int id) {
+        return vboIndexSize.get(id);
     }
 
     public static int getVboVertexID(int id) {
