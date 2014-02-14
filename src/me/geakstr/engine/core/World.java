@@ -1,5 +1,5 @@
 package me.geakstr.engine.core;
-//world comment
+
 public class World {
     // world[length][height][width]; world[x][y][z]
     private int[][][] world;
