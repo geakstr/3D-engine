@@ -7,7 +7,7 @@ import me.geakstr.engine.model.ResourceBuffer;
 import org.lwjgl.opengl.Display;
 
 import static org.lwjgl.opengl.GL11.*;
-
+//new comment
 public class Main extends Game {
     private Camera camera;
     private Frustum frustum;
