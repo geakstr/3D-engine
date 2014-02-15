@@ -117,7 +117,7 @@ public class ResourceBuffer {
             }
             models.put(name, model);
         }
-        loadBuffers();
+        //loadBuffers();
     }
 
     public static void loadBuffers() {
@@ -204,11 +204,11 @@ public class ResourceBuffer {
             indexBuffer.rewind();
             if (isTextured) textureBuffer.rewind();
 
-
+            // Bind buffers
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, curVboIndexID);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-            // Bind buffers
+
             glBindBuffer(GL_ARRAY_BUFFER, curVboVertexID);
             glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -318,6 +318,14 @@ public class ResourceBuffer {
 
     public static List<Vector3f> getVertices(int id) {
         return vertices.get(id);
+    }
+
+    public static List<Vector3f> getNormals(int id) {
+        return normals.get(id);
+    }
+
+    public static List<Vector2f> getTexCoords(int id) {
+        return texCoords.get(id);
     }
 
     public static List<Face> getFaces(int id) {
