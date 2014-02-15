@@ -3,13 +3,7 @@ package me.geakstr.engine.model;
 public class Cube extends Model {
 
     public static enum Type {
-        CUBE(-1),
-        TOP(21),
-        BOTTOM(18),
-        LEFT(30),
-        RIGHT(24),
-        NEAR(27),
-        FAR(33);
+        CUBE(-1), TOP(21), BOTTOM(18), LEFT(30), RIGHT(24), NEAR(27), FAR(33);
 
         private int offsetLeft, offsetRight;
 
