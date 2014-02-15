@@ -46,8 +46,11 @@ public class Main extends Game {
 
         ResourceBuffer.loadModels("cube/cube.obj", "axe/axe.obj");
 
-        world = new World(10, 1, 10, ResourceBuffer.getModels().get("cube/cube.obj").getId());
-        world.gen();
+        World.init(200, 1, 200, ResourceBuffer.getModels().get("cube/cube.obj").getId());
+
+        World.gen();
+        World.prepare();
+
 
         wasInput = true;
     }
@@ -71,10 +74,10 @@ public class Main extends Game {
         shader.setUniform("mView", camera.getViewMatrix());
         shader.setUniform("mNormal", camera.getNormalMatrix());
         shader.setUniform("mTransform", transform.getTransform());
-        shader.setUniform("lightPos", camera.getPosition());
-        shader.setUniform("texture", 0);
 
-        world.render(frustum, shader);
+
+        World.render(shader);
+
 
         shader.unbind();
     }
@@ -82,9 +85,10 @@ public class Main extends Game {
 
 
     public void dispose() {
-        for (Model model : ResourceBuffer.getModels().values()) {
-            RenderEngine.dispose(model.getId());
-        }
+//        for (Model model : ResourceBuffer.getModels().values()) {
+//            RenderEngine.dispose(model.getId());
+//        }
+        World.finish();
         shader.dispose();
     }
 
