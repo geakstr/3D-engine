@@ -10,10 +10,10 @@ public class Game implements Runnable {
 
     public static final int WIDTH = 600;
     public static final int HEIGHT = 600;
-    public static final boolean VSYNC_ENABLED = true;
+    public static final boolean VSYNC_ENABLED = false;
     public static final boolean RESIZE_ENABLED = false;
     public static final boolean FULLSCREEN_ENABLED = false;
-    public static final int FRAME_CAP = 89;
+    public static final int FRAME_CAP = 90;
 
     public static String RES_DIR;
 
