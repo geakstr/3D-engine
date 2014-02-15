@@ -76,12 +76,6 @@ public class Main extends Game {
 
         world.render(frustum, shader);
 
-        Model axe = ResourceBuffer.getModels().get("axe/axe.obj");
-        int axeId = axe.getId();
-        RenderEngine.start(axeId);
-        RenderEngine.render(axeId, 5, 5, 5, shader);
-        RenderEngine.end(axeId);
-
         shader.unbind();
     }
 
