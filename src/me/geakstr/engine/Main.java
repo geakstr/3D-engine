@@ -14,8 +14,6 @@ public class Main extends Game {
     private Shader shader;
     private Transform transform;
 
-    private World world;
-
     private boolean wasInput;
 
     public Main(String resDir) {
@@ -44,13 +42,12 @@ public class Main extends Game {
 
         transform = new Transform();
 
-        ResourceBuffer.loadModels("cube/cube.obj", "axe/axe.obj");
+        ResourceBuffer.loadModels("cube/top.obj", "axe/axe.obj");
 
-        World.init(200, 1, 200, ResourceBuffer.getModels().get("cube/cube.obj").getId());
+        World.init(10, 1, 10, ResourceBuffer.getModels().get("cube/top.obj").getId());
 
         World.gen();
-        World.prepare();
-
+        World.renderPrepare();
 
         wasInput = true;
     }
@@ -66,7 +63,7 @@ public class Main extends Game {
         camera.apply();
 
         if (wasInput) {
-            frustum.update(camera.getProjectionMatrix(), camera.getViewMatrix());
+            //frustum.update(camera.getProjectionMatrix(), camera.getViewMatrix());
         }
 
         shader.bind();
@@ -75,9 +72,7 @@ public class Main extends Game {
         shader.setUniform("mNormal", camera.getNormalMatrix());
         shader.setUniform("mTransform", transform.getTransform());
 
-
         World.render(shader);
-
 
         shader.unbind();
     }
@@ -85,10 +80,7 @@ public class Main extends Game {
 
 
     public void dispose() {
-//        for (Model model : ResourceBuffer.getModels().values()) {
-//            RenderEngine.dispose(model.getId());
-//        }
-        World.finish();
+        World.renderDispose();
         shader.dispose();
     }
 
