@@ -42,9 +42,10 @@ public class Main extends Game {
 
         transform = new Transform();
 
-        ResourceBuffer.loadModels("cube/top.obj", "axe/axe.obj");
+        ResourceBuffer.loadModels("cube/cube.obj", "cube/top.obj", "axe/axe.obj");
+        ResourceBuffer.loadTextures("axe.png", "stone.png", "texture3.png");
 
-        World.init(10, 1, 10, ResourceBuffer.getModels().get("cube/top.obj").getId());
+        World.init(16, 16, 16, ResourceBuffer.getModels().get("cube/cube.obj").getId());
 
         World.gen();
         World.renderPrepare();

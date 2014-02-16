@@ -229,15 +229,37 @@ public class ResourceBuffer {
         }
     }
 
+    public static void loadTextures(String... names) {
+        for (String name : names) loadTexture(name);
+    }
+
+    public static int getTextureIdByName(String name) {
+        for (Texture tex : textures.values()) {
+            if (tex.name.equals(name)) {
+                return tex.id;
+            }
+        }
+        return 0;
+    }
+
     private static Texture loadTexture(String name) {
-        name = Game.RES_DIR + "/textures/" + name;
+
+        String path = Game.RES_DIR + "/textures/" + name;
+
+        if (loadedTextures.contains(name)) {
+            for (Texture texture : textures.values()) {
+                if (texture.name.equals(name)) return texture;
+            }
+        }
+        loadedTextures.add(name);
+
         // Load the image
         BufferedImage bimg = null;
         try {
-            bimg = ImageIO.read(new File(name));
+            bimg = ImageIO.read(new File(path));
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Unable to load Texture: " + name);
+            System.out.println("Unable to load Texture: " + path);
             Game.end();
         }
 
@@ -273,14 +295,13 @@ public class ResourceBuffer {
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, bimg.getWidth(), bimg.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
-        return new Texture(textureID, bimg.getWidth(), bimg.getHeight());
+        Texture newTexture = new Texture(textureID, bimg.getWidth(), bimg.getHeight(), name);
+        textures.put(textureID, newTexture);
+        return newTexture;
     }
 
     private static void parseMaterial(int id, String path, String name) {
         path = FileUtil.getFileInSameLevelOf(path, name);
-
-        if (loadedTextures.contains(path)) return;
-        loadedTextures.add(path);
 
         Material material = null;
         for (String line : FileUtil.readAllLines(path)) {
@@ -300,7 +321,6 @@ public class ResourceBuffer {
             } else if (line.startsWith("map_Kd ")) {
                 Texture texture = loadTexture(line.replaceAll("map_Kd", "").trim());
                 texturesID.put(id, texture.id);
-                textures.put(texture.id, texture);
             }
         }
         materials.get(id).put(material.getName(), material);
