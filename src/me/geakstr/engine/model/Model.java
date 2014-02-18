@@ -56,39 +56,39 @@ public class Model {
         return id;
     }
 
-    public int getX() {
+    public int x() {
         return x;
     }
 
-    public int getY() {
+    public int y() {
         return y;
     }
 
-    public int getZ() {
+    public int z() {
         return z;
     }
 
-    public float getRotX() {
+    public float rotX() {
         return rotX;
     }
 
-    public float getRotY() {
+    public float rotY() {
         return rotY;
     }
 
-    public float getRotZ() {
+    public float rotZ() {
         return rotZ;
     }
 
-    public float getScaleX() {
+    public float scaleX() {
         return scaleX;
     }
 
-    public float getScaleY() {
+    public float scaleY() {
         return scaleY;
     }
 
-    public float getScaleZ() {
+    public float scaleZ() {
         return scaleZ;
     }
 

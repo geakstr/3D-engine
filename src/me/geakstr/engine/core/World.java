@@ -58,22 +58,36 @@ public class World {
         RenderCube.dispose();
     }
 
-    public static boolean isRenderableCube(int id, int x, int y, int z, Frustum frustum) {
-        return id == cubeId && !isSurrounded(x, y, z) && frustum.checkCube(x, y, z, 1) >= 1;
+//    public static boolean isRenderableCube(int id, int x, int y, int z, Frustum frustum) {
+//        return id == cubeId && !isSurrounded(x, y, z) && frustum.checkCube(x, y, z, 1) >= 1;
+//    }
+
+    public static Cube.Type[] isRenderableSides(int id, int x, int y, int z) {
+    	Cube.Type[] sides = renderableSides(x, y, z);
+    	
+        return id == cubeId && sides.length > 0 ? sides : null;
     }
 
-    public static boolean isRenderableCube(int id, int x, int y, int z) {
-        return id == cubeId && !isSurrounded(x, y, z);
-    }
-
-    public static boolean isSurrounded(int x, int y, int z) {
-        if (x == length - 1 || y == height - 1 || z == width - 1 || x == 0 || y == 0 || z == 0)
-            return false;
-        if (world[x - 1][y][z] != 0 && world[x + 1][y][z] != 0)
-            if (world[x][y - 1][z] != 0 && world[x][y + 1][z] != 0)
-                if (world[x][y][z - 1] != 0 && world[x][y][z + 1] != 0)
-                    return true;
-        return false;
+    public static Cube.Type[] renderableSides(int x, int y, int z) {
+    	List<Cube.Type> sides = new ArrayList<Cube.Type>();
+    	
+    	if (x == 0 || world[x - 1][y][z] == 0)
+    		sides.add(Cube.Type.LEFT);
+    	if (x == length - 1 || world[x + 1][y][z] == 0)
+    		sides.add(Cube.Type.RIGHT);
+    	if (y == 0 || world[x][y - 1][z] == 0)
+    		sides.add(Cube.Type.BOTTOM);
+    	if (y == height - 1|| world[x][y + 1][z] == 0)
+    		sides.add(Cube.Type.TOP);
+    	if (z == 0 || world[x][y][z - 1] == 0)
+    		sides.add(Cube.Type.NEAR);
+    	if (z == width - 1 || world[x][y][z + 1] == 0)
+    		sides.add(Cube.Type.FAR);
+    	
+    	Cube.Type[] ret = new Cube.Type[sides.size()];
+    	sides.toArray(ret);
+    	
+        return ret;
     }
 
     public static void set(int id, int x, int y, int z) {

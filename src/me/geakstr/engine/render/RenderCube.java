@@ -5,10 +5,12 @@ import me.geakstr.engine.core.Transform;
 import me.geakstr.engine.core.World;
 import me.geakstr.engine.math.Vector2f;
 import me.geakstr.engine.math.Vector3f;
+import me.geakstr.engine.model.Cube;
 import me.geakstr.engine.model.Face;
 import me.geakstr.engine.model.Material;
 import me.geakstr.engine.model.Point;
 import me.geakstr.engine.model.ResourceBuffer;
+
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -19,8 +21,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.glVertexPointer;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL32.glDrawElementsBaseVertex;
 
@@ -28,101 +28,93 @@ public class RenderCube {
     public static int indexSize;
 
     public static void prepare() {
-        Set<Point> renderableCubes = new LinkedHashSet<Point>();
-        for (int x = 0; x < World.getLength(); x++)
-            for (int y = 0; y < World.getHeight(); y++)
-                for (int z = 0; z < World.getWidth(); z++)
-                    if (World.isRenderableCube(World.get(x, y, z), x, y, z))
-                        renderableCubes.add(new Point(x, y, z));
-
         boolean isTextured = ResourceBuffer.getTextured(World.getCubeId());
         List<Float> vertexArray = new ArrayList<Float>();
         List<Float> normalArray = new ArrayList<Float>();
         List<Float> colorArray = new ArrayList<Float>();
         List<Float> textureArray = new ArrayList<Float>();
-
         indexSize = 0;
-        for (Point coord : renderableCubes) {
-            int x = coord.x();
-            int y = coord.y();
-            int z = coord.z();
-
-            for (Face face : ResourceBuffer.getFaces(World.getCubeId())) {
-                Material material = face.getMaterial();
-
-                // Get the first vertex of the face
-                Vector3f v1 = ResourceBuffer.getVertices(World.getCubeId()).get((int) face.getVertex().x - 1);
-                vertexArray.add(v1.x + x);
-                vertexArray.add(v1.y + y);
-                vertexArray.add(v1.z + z);
-
-                // Get the second vertex of the face
-                Vector3f v2 = ResourceBuffer.getVertices(World.getCubeId()).get((int) face.getVertex().y - 1);
-                vertexArray.add(v2.x + x);
-                vertexArray.add(v2.y + y);
-                vertexArray.add(v2.z + z);
-
-                // Get the third vertex of the face
-                Vector3f v3 = ResourceBuffer.getVertices(World.getCubeId()).get((int) face.getVertex().z - 1);
-                vertexArray.add(v3.x + x);
-                vertexArray.add(v3.y + y);
-                vertexArray.add(v3.z + z);
-
-                // Get the first normal of the face
-                Vector3f n1 = ResourceBuffer.getNormals(World.getCubeId()).get((int) face.getNormal().x - 1);
-                normalArray.add(n1.x);
-                normalArray.add(n1.y);
-                normalArray.add(n1.z);
-
-                // Get the second normal of the face
-                Vector3f n2 = ResourceBuffer.getNormals(World.getCubeId()).get((int) face.getNormal().y - 1);
-                normalArray.add(n2.x);
-                normalArray.add(n2.y);
-                normalArray.add(n2.z);
-
-                // Get the third normal of the face
-                Vector3f n3 = ResourceBuffer.getNormals(World.getCubeId()).get((int) face.getNormal().z - 1);
-                normalArray.add(n3.x);
-                normalArray.add(n3.y);
-                normalArray.add(n3.z);
-
-                colorArray.add(material.getDiffuse().x);
-                colorArray.add(material.getDiffuse().y);
-                colorArray.add(material.getDiffuse().z);
-                colorArray.add(material.getDiffuse().x);
-                colorArray.add(material.getDiffuse().y);
-                colorArray.add(material.getDiffuse().z);
-                colorArray.add(material.getDiffuse().x);
-                colorArray.add(material.getDiffuse().y);
-                colorArray.add(material.getDiffuse().z);
-
-                if (isTextured) {
-                    // Get the first texCoords of the face
-                    Vector2f t1 = ResourceBuffer.getTexCoords(World.getCubeId()).get((int) face.getTexCoord().x - 1);
-                    textureArray.add(t1.x);
-                    textureArray.add(1 - t1.y);
-
-                    // Get the second texCoords of the face
-                    Vector2f t2 = ResourceBuffer.getTexCoords(World.getCubeId()).get((int) face.getTexCoord().y - 1);
-                    textureArray.add(t2.x);
-                    textureArray.add(1 - t2.y);
-
-                    // Get the third texCoords of the face
-                    Vector2f t3 = ResourceBuffer.getTexCoords(World.getCubeId()).get((int) face.getTexCoord().z - 1);
-                    textureArray.add(t3.x);
-                    textureArray.add(1 - t3.y);
+        
+        for (int x = 0; x < World.getLength(); x++) {
+            for (int y = 0; y < World.getHeight(); y++) {
+                for (int z = 0; z < World.getWidth(); z++) {
+                	
+                	Cube.Type[] sides = World.isRenderableSides(World.get(x, y, z), x, y, z);
+                	if (sides == null) continue;
+                	
+                	//for (Face face : ResourceBuffer.getFaces(World.getCubeId())) {
+                	//for (Cube.Type side : sides) {
+	                	for (int i = 1; i < 8; i += 6) {
+	                		Face face = ResourceBuffer.getFaces(World.getCubeId()).get(i);
+	                        Material material = face.getMaterial();
+	
+	                        Vector3f v1 = ResourceBuffer.getVertices(World.getCubeId()).get((int) face.getVertex().x - 1);
+	                        vertexArray.add(v1.x + x);
+	                        vertexArray.add(v1.y + y);
+	                        vertexArray.add(v1.z + z);
+	
+	                        Vector3f v2 = ResourceBuffer.getVertices(World.getCubeId()).get((int) face.getVertex().y - 1);
+	                        vertexArray.add(v2.x + x);
+	                        vertexArray.add(v2.y + y);
+	                        vertexArray.add(v2.z + z);
+	
+	                        Vector3f v3 = ResourceBuffer.getVertices(World.getCubeId()).get((int) face.getVertex().z - 1);
+	                        vertexArray.add(v3.x + x);
+	                        vertexArray.add(v3.y + y);
+	                        vertexArray.add(v3.z + z);
+	
+	                        Vector3f n1 = ResourceBuffer.getNormals(World.getCubeId()).get((int) face.getNormal().x - 1);
+	                        normalArray.add(n1.x);
+	                        normalArray.add(n1.y);
+	                        normalArray.add(n1.z);
+	
+	                        Vector3f n2 = ResourceBuffer.getNormals(World.getCubeId()).get((int) face.getNormal().y - 1);
+	                        normalArray.add(n2.x);
+	                        normalArray.add(n2.y);
+	                        normalArray.add(n2.z);
+	
+	                        Vector3f n3 = ResourceBuffer.getNormals(World.getCubeId()).get((int) face.getNormal().z - 1);
+	                        normalArray.add(n3.x);
+	                        normalArray.add(n3.y);
+	                        normalArray.add(n3.z);
+	
+	                        colorArray.add(material.getDiffuse().x);
+	                        colorArray.add(material.getDiffuse().y);
+	                        colorArray.add(material.getDiffuse().z);
+	                        colorArray.add(material.getDiffuse().x);
+	                        colorArray.add(material.getDiffuse().y);
+	                        colorArray.add(material.getDiffuse().z);
+	                        colorArray.add(material.getDiffuse().x);
+	                        colorArray.add(material.getDiffuse().y);
+	                        colorArray.add(material.getDiffuse().z);
+	
+	                        if (isTextured) {
+	                            Vector2f t1 = ResourceBuffer.getTexCoords(World.getCubeId()).get((int) face.getTexCoord().x - 1);
+	                            textureArray.add(t1.x);
+	                            textureArray.add(1 - t1.y);
+	
+	                            Vector2f t2 = ResourceBuffer.getTexCoords(World.getCubeId()).get((int) face.getTexCoord().y - 1);
+	                            textureArray.add(t2.x);
+	                            textureArray.add(1 - t2.y);
+	
+	                            Vector2f t3 = ResourceBuffer.getTexCoords(World.getCubeId()).get((int) face.getTexCoord().z - 1);
+	                            textureArray.add(t3.x);
+	                            textureArray.add(1 - t3.y);
+	                        }
+	                        indexSize += 3;
+	                    }
+                	//}
                 }
-                indexSize += 3;
             }
         }
 
         int size = vertexArray.size();
-        IntBuffer indexBuffer = BufferUtils.createIntBuffer(indexSize);
         FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(9 * size);
         FloatBuffer normalBuffer = BufferUtils.createFloatBuffer(9 * size);
         FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(9 * size);
         FloatBuffer textureBuffer = null;
         if (isTextured) textureBuffer = BufferUtils.createFloatBuffer(6 * size);
+        IntBuffer indexBuffer = BufferUtils.createIntBuffer(indexSize);
 
         for (int i = 0; i < indexSize; i++) {
             indexBuffer.put(i);
