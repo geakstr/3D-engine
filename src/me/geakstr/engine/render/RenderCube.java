@@ -3,12 +3,8 @@ package me.geakstr.engine.render;
 import me.geakstr.engine.core.Shader;
 import me.geakstr.engine.core.Transform;
 import me.geakstr.engine.core.World;
-import me.geakstr.engine.math.Vector2f;
-import me.geakstr.engine.math.Vector3f;
-import me.geakstr.engine.model.Cube;
-import me.geakstr.engine.model.Face;
-import me.geakstr.engine.model.Material;
-import me.geakstr.engine.model.Point;
+import me.geakstr.engine.model.Cube.Cube;
+import me.geakstr.engine.model.Cube.CubeType;
 import me.geakstr.engine.model.ResourceBuffer;
 
 import org.lwjgl.BufferUtils;
@@ -16,9 +12,7 @@ import org.lwjgl.BufferUtils;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -28,167 +22,119 @@ public class RenderCube {
     public static int indexSize;
 
     public static void prepare() {
-        boolean isTextured = ResourceBuffer.getTextured(World.getCubeId());
-        List<Float> vertexArray = new ArrayList<Float>();
-        List<Float> normalArray = new ArrayList<Float>();
-        List<Float> colorArray = new ArrayList<Float>();
-        List<Float> textureArray = new ArrayList<Float>();
+        List<Float> vertices = new ArrayList<Float>();
+        List<Float> normals = new ArrayList<Float>();
+        List<Float> colors = new ArrayList<Float>();
+        List<Float> texCoords = new ArrayList<Float>();
+
+
+        // Generate mesh
         indexSize = 0;
-        
         for (int x = 0; x < World.getLength(); x++) {
             for (int y = 0; y < World.getHeight(); y++) {
                 for (int z = 0; z < World.getWidth(); z++) {
-                	
-                	Cube.Type[] sides = World.isRenderableSides(World.get(x, y, z), x, y, z);
-                	if (sides == null) continue;
-                	
-                	//for (Face face : ResourceBuffer.getFaces(World.getCubeId())) {
-                	//for (Cube.Type side : sides) {
-	                	for (int i = 1; i < 8; i += 6) {
-	                		Face face = ResourceBuffer.getFaces(World.getCubeId()).get(i);
-	                        Material material = face.getMaterial();
-	
-	                        Vector3f v1 = ResourceBuffer.getVertices(World.getCubeId()).get((int) face.getVertex().x - 1);
-	                        vertexArray.add(v1.x + x);
-	                        vertexArray.add(v1.y + y);
-	                        vertexArray.add(v1.z + z);
-	
-	                        Vector3f v2 = ResourceBuffer.getVertices(World.getCubeId()).get((int) face.getVertex().y - 1);
-	                        vertexArray.add(v2.x + x);
-	                        vertexArray.add(v2.y + y);
-	                        vertexArray.add(v2.z + z);
-	
-	                        Vector3f v3 = ResourceBuffer.getVertices(World.getCubeId()).get((int) face.getVertex().z - 1);
-	                        vertexArray.add(v3.x + x);
-	                        vertexArray.add(v3.y + y);
-	                        vertexArray.add(v3.z + z);
-	
-	                        Vector3f n1 = ResourceBuffer.getNormals(World.getCubeId()).get((int) face.getNormal().x - 1);
-	                        normalArray.add(n1.x);
-	                        normalArray.add(n1.y);
-	                        normalArray.add(n1.z);
-	
-	                        Vector3f n2 = ResourceBuffer.getNormals(World.getCubeId()).get((int) face.getNormal().y - 1);
-	                        normalArray.add(n2.x);
-	                        normalArray.add(n2.y);
-	                        normalArray.add(n2.z);
-	
-	                        Vector3f n3 = ResourceBuffer.getNormals(World.getCubeId()).get((int) face.getNormal().z - 1);
-	                        normalArray.add(n3.x);
-	                        normalArray.add(n3.y);
-	                        normalArray.add(n3.z);
-	
-	                        colorArray.add(material.getDiffuse().x);
-	                        colorArray.add(material.getDiffuse().y);
-	                        colorArray.add(material.getDiffuse().z);
-	                        colorArray.add(material.getDiffuse().x);
-	                        colorArray.add(material.getDiffuse().y);
-	                        colorArray.add(material.getDiffuse().z);
-	                        colorArray.add(material.getDiffuse().x);
-	                        colorArray.add(material.getDiffuse().y);
-	                        colorArray.add(material.getDiffuse().z);
-	
-	                        if (isTextured) {
-	                            Vector2f t1 = ResourceBuffer.getTexCoords(World.getCubeId()).get((int) face.getTexCoord().x - 1);
-	                            textureArray.add(t1.x);
-	                            textureArray.add(1 - t1.y);
-	
-	                            Vector2f t2 = ResourceBuffer.getTexCoords(World.getCubeId()).get((int) face.getTexCoord().y - 1);
-	                            textureArray.add(t2.x);
-	                            textureArray.add(1 - t2.y);
-	
-	                            Vector2f t3 = ResourceBuffer.getTexCoords(World.getCubeId()).get((int) face.getTexCoord().z - 1);
-	                            textureArray.add(t3.x);
-	                            textureArray.add(1 - t3.y);
-	                        }
-	                        indexSize += 3;
-	                    }
-                	//}
+                    CubeType[] sides = World.isRenderableSides(World.get(x, y, z), x, y, z);
+                    if (sides == null) continue;
+
+                    for (int i = 0; i < CubeType.TOP.vertices().length; i += 3) {
+                        vertices.add(CubeType.TOP.vertices()[i] + x);
+                        vertices.add(CubeType.TOP.vertices()[i + 1] + y);
+                        vertices.add(CubeType.TOP.vertices()[i + 2] + z);
+                    }
+                    for (int k = 0; k < 6; k++) {
+                        for (int i = 0; i < 3; i++) {
+                            normals.add(Cube.normals[i]);
+                            colors.add(Cube.diffuse[i]);
+                        }
+                    }
+                    for (int i = 0; i < CubeType.TOP.texCoords().length; i += 2) {
+                        texCoords.add(CubeType.TOP.texCoords()[i]);
+                        texCoords.add(1 - CubeType.TOP.texCoords()[i + 1]);
+                    }
+                    indexSize += 3;
                 }
             }
         }
+        indexSize *= 2;
 
-        int size = vertexArray.size();
-        FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(9 * size);
-        FloatBuffer normalBuffer = BufferUtils.createFloatBuffer(9 * size);
-        FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(9 * size);
-        FloatBuffer textureBuffer = null;
-        if (isTextured) textureBuffer = BufferUtils.createFloatBuffer(6 * size);
+
+        // Fill buffers
         IntBuffer indexBuffer = BufferUtils.createIntBuffer(indexSize);
+        for (int i = 0; i < indexSize; i++) indexBuffer.put(i);
 
-        for (int i = 0; i < indexSize; i++) {
-            indexBuffer.put(i);
-        }
-
+        int size = vertices.size();
+        FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(size);
+        FloatBuffer normalBuffer = BufferUtils.createFloatBuffer(size);
+        FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(size);
         for (int i = 0; i < size; i++) {
-            vertexBuffer.put(vertexArray.get(i));
-            normalBuffer.put(normalArray.get(i));
-            colorBuffer.put(colorArray.get(i));
+            vertexBuffer.put(vertices.get(i));
+            normalBuffer.put(normals.get(i));
+            colorBuffer.put(colors.get(i));
         }
 
-        if (isTextured) {
-            for (Float pos : textureArray) {
-                textureBuffer.put(pos);
-            }
-        }
+        size = texCoords.size();
+        FloatBuffer textureBuffer = BufferUtils.createFloatBuffer(size);
+        for (int i = 0; i < size; i++) textureBuffer.put(texCoords.get(i));
 
+
+        // Flip buffers
         indexBuffer.rewind();
         vertexBuffer.rewind();
         normalBuffer.rewind();
         colorBuffer.rewind();
-        if (isTextured) textureBuffer.rewind();
-
-        int vboIndexID = glGenBuffers();
-        int vboVertexID = glGenBuffers();
-        int vboNormalID = glGenBuffers();
-        int vboColorID = glGenBuffers();
-        int vboTextureID = isTextured ? glGenBuffers() : -1;
+        textureBuffer.rewind();
 
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndexID);
+        // Gen buffers
+        final int vboIndex = glGenBuffers();
+        final int vboVertex = glGenBuffers();
+        final int vboNormal = glGenBuffers();
+        final int vboColor = glGenBuffers();
+        final int vboTexture = glGenBuffers();
+
+
+        // Assign data to buffers
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndex);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, vboVertexID);
+        glBindBuffer(GL_ARRAY_BUFFER, vboVertex);
         glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, vboNormalID);
+        glBindBuffer(GL_ARRAY_BUFFER, vboNormal);
         glBufferData(GL_ARRAY_BUFFER, normalBuffer, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, vboColorID);
+        glBindBuffer(GL_ARRAY_BUFFER, vboColor);
         glBufferData(GL_ARRAY_BUFFER, colorBuffer, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        if (isTextured) {
-            glBindBuffer(GL_ARRAY_BUFFER, vboTextureID);
-            glBufferData(GL_ARRAY_BUFFER, textureBuffer, GL_STATIC_DRAW);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-        }
+        glBindBuffer(GL_ARRAY_BUFFER, vboTexture);
+        glBufferData(GL_ARRAY_BUFFER, textureBuffer, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
+        // Bind buffers
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_NORMAL_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
 
-        if (isTextured) {
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            glBindTexture(GL_TEXTURE_2D, ResourceBuffer.getTexturesID(World.getCubeId()));
-            glBindBuffer(GL_ARRAY_BUFFER, vboTextureID);
-            glTexCoordPointer(2, GL_FLOAT, 0, 0);
-        }
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glBindTexture(GL_TEXTURE_2D, ResourceBuffer.getTexturesID(World.getCubeId()));
+        glBindBuffer(GL_ARRAY_BUFFER, vboTexture);
+        glTexCoordPointer(2, GL_FLOAT, 0, 0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, vboNormalID);
+        glBindBuffer(GL_ARRAY_BUFFER, vboNormal);
         glNormalPointer(GL_FLOAT, 0, 0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, vboColorID);
+        glBindBuffer(GL_ARRAY_BUFFER, vboColor);
         glColorPointer(3, GL_FLOAT, 0, 0);
 
-        glBindBuffer(GL_ARRAY_BUFFER, vboVertexID);
+        glBindBuffer(GL_ARRAY_BUFFER, vboVertex);
         glVertexPointer(3, GL_FLOAT, 0, 0);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndexID);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndex);
     }
 
     public static void render(Shader shader) {
