@@ -1,7 +1,6 @@
 package me.geakstr.engine;
 
 import me.geakstr.engine.core.*;
-import me.geakstr.engine.model.Model;
 
 import me.geakstr.engine.model.ResourceBuffer;
 import org.lwjgl.opengl.Display;
@@ -42,10 +41,10 @@ public class Main extends Game {
 
         transform = new Transform();
 
-        ResourceBuffer.loadModels("cube/cube.obj", "cube/top.obj", "axe/axe.obj");
-        ResourceBuffer.loadTextures("axe.png", "stone.png", "texture3.png");
+        ResourceBuffer.loadModels("cube/top.obj");
+        ResourceBuffer.loadTextures("stone.png");
 
-        World.init(16, 16, 16, ResourceBuffer.getModels().get("cube/cube.obj").getId());
+        World.init(16, 16, 16, ResourceBuffer.getModels().get("cube/top.obj").getId());
 
         World.gen();
         World.renderPrepare();
