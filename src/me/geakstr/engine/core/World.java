@@ -1,21 +1,12 @@
 package me.geakstr.engine.core;
 
-import me.geakstr.engine.math.Vector2f;
-import me.geakstr.engine.math.Vector3f;
-import me.geakstr.engine.model.*;
+import me.geakstr.engine.model.Cube.Cube;
+import me.geakstr.engine.model.Cube.CubeType;
 import me.geakstr.engine.render.RenderCube;
-import org.lwjgl.BufferUtils;
 
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL32.glDrawElementsBaseVertex;
 
 public class World {
@@ -58,33 +49,29 @@ public class World {
         RenderCube.dispose();
     }
 
-//    public static boolean isRenderableCube(int id, int x, int y, int z, Frustum frustum) {
-//        return id == cubeId && !isSurrounded(x, y, z) && frustum.checkCube(x, y, z, 1) >= 1;
-//    }
-
-    public static Cube.Type[] isRenderableSides(int id, int x, int y, int z) {
-    	Cube.Type[] sides = renderableSides(x, y, z);
+    public static CubeType[] isRenderableSides(int id, int x, int y, int z) {
+    	CubeType[] sides = renderableSides(x, y, z);
     	
         return id == cubeId && sides.length > 0 ? sides : null;
     }
 
-    public static Cube.Type[] renderableSides(int x, int y, int z) {
-    	List<Cube.Type> sides = new ArrayList<Cube.Type>();
+    public static CubeType[] renderableSides(int x, int y, int z) {
+    	List<CubeType> sides = new ArrayList<CubeType>();
     	
     	if (x == 0 || world[x - 1][y][z] == 0)
-    		sides.add(Cube.Type.LEFT);
+    		sides.add(CubeType.LEFT);
     	if (x == length - 1 || world[x + 1][y][z] == 0)
-    		sides.add(Cube.Type.RIGHT);
+    		sides.add(CubeType.RIGHT);
     	if (y == 0 || world[x][y - 1][z] == 0)
-    		sides.add(Cube.Type.BOTTOM);
+    		sides.add(CubeType.BOTTOM);
     	if (y == height - 1|| world[x][y + 1][z] == 0)
-    		sides.add(Cube.Type.TOP);
+    		sides.add(CubeType.TOP);
     	if (z == 0 || world[x][y][z - 1] == 0)
-    		sides.add(Cube.Type.NEAR);
+    		sides.add(CubeType.NEAR);
     	if (z == width - 1 || world[x][y][z + 1] == 0)
-    		sides.add(Cube.Type.FAR);
+    		sides.add(CubeType.FAR);
     	
-    	Cube.Type[] ret = new Cube.Type[sides.size()];
+    	CubeType[] ret = new CubeType[sides.size()];
     	sides.toArray(ret);
     	
         return ret;
