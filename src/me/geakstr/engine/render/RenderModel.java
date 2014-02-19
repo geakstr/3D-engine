@@ -3,12 +3,11 @@ package me.geakstr.engine.render;
 import me.geakstr.engine.core.Shader;
 import me.geakstr.engine.core.Transform;
 import me.geakstr.engine.core.World;
-import me.geakstr.engine.model.Cube;
+import me.geakstr.engine.model.Cube.CubeType;
 import me.geakstr.engine.model.ResourceBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL32.*;
 
 public class RenderModel {
     public static void start(int id) {
@@ -54,20 +53,17 @@ public class RenderModel {
         render(model, x, y, z, 0, 0, 0, 1, 1, 1, shader);
     }
 
-    public static void render(int x, int y, int z, float rotX, float rotY, float rotZ, float scaleX, float scaleY, float scaleZ, Shader shader, Cube.Type[] sides) {
-        if (sides == null || sides.length == 0 || (sides.length == 1 && sides[0] == Cube.Type.CUBE)) {
+    public static void render(int x, int y, int z, float rotX, float rotY, float rotZ, float scaleX, float scaleY, float scaleZ, Shader shader, CubeType[] sides) {
+        if (sides == null || sides.length == 0 || (sides.length == 1 && sides[0] == CubeType.CUBE)) {
             render(World.getCubeId(), x, y, z, rotX, rotY, rotZ, scaleX, scaleY, scaleZ, shader);
             return;
         }
 
         transform(x, y, z, rotX, rotY, rotZ, scaleX, scaleY, scaleZ, shader);
-        for (Cube.Type side : sides) {
-            glDrawElementsBaseVertex(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0, side.getOffsetLeft());
-            glDrawElementsBaseVertex(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0, side.getOffsetRight());
-        }
+        glDrawElements(GL_TRIANGLES, ResourceBuffer.getVboIndexSize(World.getCubeId()), GL_UNSIGNED_INT, 0);
     }
 
-    public static void render(int x, int y, int z, Shader shader, Cube.Type[] sides) {
+    public static void render(int x, int y, int z, Shader shader, CubeType[] sides) {
         render(x, y, z, 0, 0, 0, 1, 1, 1, shader, sides);
     }
 
