@@ -23,10 +23,6 @@ public class RenderCube {
 
     public static void prepare() {
         List<Float> vertices = new ArrayList<Float>();
-        List<Float> normals = new ArrayList<Float>();
-        List<Float> colors = new ArrayList<Float>();
-        List<Float> texCoords = new ArrayList<Float>();
-
 
         // Generate mesh
         indexSize = 0;
@@ -41,40 +37,36 @@ public class RenderCube {
                         vertices.add(CubeType.TOP.vertices()[i + 1] + y);
                         vertices.add(CubeType.TOP.vertices()[i + 2] + z);
                     }
-                    for (int k = 0; k < 6; k++) {
-                        for (int i = 0; i < 3; i++) {
-                            normals.add(Cube.normals[i]);
-                            colors.add(Cube.diffuse[i]);
-                        }
-                    }
-                    for (int i = 0; i < CubeType.TOP.texCoords().length; i += 2) {
-                        texCoords.add(CubeType.TOP.texCoords()[i]);
-                        texCoords.add(1 - CubeType.TOP.texCoords()[i + 1]);
-                    }
-                    indexSize += 3;
+                    indexSize++;
                 }
             }
         }
-        indexSize *= 2;
-
-
+        
         // Fill buffers
-        IntBuffer indexBuffer = BufferUtils.createIntBuffer(indexSize);
-        for (int i = 0; i < indexSize; i++) indexBuffer.put(i);
-
         int size = vertices.size();
+        
         FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(size);
+        for (int i = 0; i < size; i++) vertexBuffer.put(vertices.get(i));
+
         FloatBuffer normalBuffer = BufferUtils.createFloatBuffer(size);
         FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(size);
-        for (int i = 0; i < size; i++) {
-            vertexBuffer.put(vertices.get(i));
-            normalBuffer.put(normals.get(i));
-            colorBuffer.put(colors.get(i));
+        FloatBuffer textureBuffer = BufferUtils.createFloatBuffer((int) (size / 1.5));
+        for (int i = 0; i < indexSize; i++) {
+        	for (int k = 0; k < 6; k++) {
+                for (int j = 0; j < 3; j++) {
+                    normalBuffer.put(Cube.normals[j]);
+                    colorBuffer.put(Cube.diffuse[j]);
+                }
+            }
+        	for (int j = 0; j < CubeType.TOP.texCoords().length; j += 2) {
+        		textureBuffer.put(CubeType.TOP.texCoords()[j]);
+            	textureBuffer.put(1 - CubeType.TOP.texCoords()[j + 1]);
+            }
         }
 
-        size = texCoords.size();
-        FloatBuffer textureBuffer = BufferUtils.createFloatBuffer(size);
-        for (int i = 0; i < size; i++) textureBuffer.put(texCoords.get(i));
+        indexSize *= 6;
+        IntBuffer indexBuffer = BufferUtils.createIntBuffer(indexSize);
+        for (int i = 0; i < indexSize; i++) indexBuffer.put(i);
 
 
         // Flip buffers

@@ -13,7 +13,7 @@ public class Game implements Runnable {
     public static final boolean VSYNC_ENABLED = false;
     public static final boolean RESIZE_ENABLED = false;
     public static final boolean FULLSCREEN_ENABLED = false;
-    public static final int FRAME_CAP = 5000;
+    public static final int FRAME_CAP = 60;
 
     public static String RES_DIR;
 
