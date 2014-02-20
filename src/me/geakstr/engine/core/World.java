@@ -1,13 +1,11 @@
 package me.geakstr.engine.core;
 
-import me.geakstr.engine.model.Cube.Cube;
 import me.geakstr.engine.model.Cube.CubeType;
 import me.geakstr.engine.render.RenderCube;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.lwjgl.opengl.GL32.glDrawElementsBaseVertex;
+import java.util.Random;
 
 public class World {
     // world[length][height][width]; world[x][y][z]
@@ -28,9 +26,11 @@ public class World {
     }
 
     public static void gen() {
+    	Random rnd = new Random();
         for (int x = 0; x < length; x++) {
             for (int z = 0; z < width; z++) {
                 for (int y = 0; y < height; y++) {
+                	if(rnd.nextBoolean())
                     setCube(x, y, z);
                 }
             }
@@ -67,9 +67,9 @@ public class World {
     	if (y == height - 1|| world[x][y + 1][z] == 0)
     		sides.add(CubeType.TOP);
     	if (z == 0 || world[x][y][z - 1] == 0)
-    		sides.add(CubeType.NEAR);
-    	if (z == width - 1 || world[x][y][z + 1] == 0)
     		sides.add(CubeType.FAR);
+    	if (z == width - 1 || world[x][y][z + 1] == 0)
+    		sides.add(CubeType.NEAR);
     	
     	CubeType[] ret = new CubeType[sides.size()];
     	sides.toArray(ret);

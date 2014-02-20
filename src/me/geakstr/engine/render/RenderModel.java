@@ -54,7 +54,7 @@ public class RenderModel {
     }
 
     public static void render(int x, int y, int z, float rotX, float rotY, float rotZ, float scaleX, float scaleY, float scaleZ, Shader shader, CubeType[] sides) {
-        if (sides == null || sides.length == 0 || (sides.length == 1 && sides[0] == CubeType.CUBE)) {
+        if (sides == null || sides.length == 0 || (sides.length == 1)) {
             render(World.getCubeId(), x, y, z, rotX, rotY, rotZ, scaleX, scaleY, scaleZ, shader);
             return;
         }
