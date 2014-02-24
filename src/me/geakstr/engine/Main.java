@@ -21,7 +21,7 @@ public class Main extends Game {
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_DEPTH_TEST);
 
-        camera = new Camera(70, (float) Display.getWidth() / (float) Display.getHeight(), 0.1f, 256f);
+        camera = new Camera(70, (float) Display.getWidth() / (float) Display.getHeight(), 0.1f, 100f);
         camera.setPosition(0, 0, 0);
 
         shader = new Shader();
@@ -34,7 +34,7 @@ public class Main extends Game {
         ResourceBuffer.loadModels("cube/top.obj");
         ResourceBuffer.loadTextures("stone.png");
 
-        World.init(64, 64, 64, ResourceBuffer.getModels().get("cube/top.obj").getId());
+        World.init(8, 8, 8, ResourceBuffer.getModels().get("cube/top.obj").getId());
 
         World.gen();
         World.renderPrepare();
