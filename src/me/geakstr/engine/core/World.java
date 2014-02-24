@@ -1,6 +1,6 @@
 package me.geakstr.engine.core;
 
-import me.geakstr.engine.model.Cube.CubeType;
+import me.geakstr.engine.model.Cube.Cube;
 import me.geakstr.engine.render.RenderCube;
 
 import java.util.ArrayList;
@@ -26,52 +26,52 @@ public class World {
     }
 
     public static void gen() {
-    	Random rnd = new Random();
+        Random rnd = new Random();
         for (int x = 0; x < length; x++) {
             for (int z = 0; z < width; z++) {
                 for (int y = 0; y < height; y++) {
-                	if(rnd.nextBoolean())
-                    setCube(x, y, z);
+                    if (rnd.nextBoolean())
+                        setCube(x, y, z);
                 }
             }
         }
     }
 
     public static void renderPrepare() {
-        RenderCube.prepare();
+        RenderCube.buffering();
     }
 
-    public static void render(Shader shader) {
-        RenderCube.render(shader);
+    public static void render() {
+        RenderCube.render();
     }
 
     public static void renderDispose() {
         RenderCube.dispose();
     }
 
-    public static CubeType[] isRenderableSides(int id, int x, int y, int z) {
-    	CubeType[] sides = renderableSides(x, y, z);
+    public static Cube.Side[] isRenderableSides(int id, int x, int y, int z) {
+        Cube.Side[] sides = renderableSides(x, y, z);
     	
         return id == cubeId && sides.length > 0 ? sides : null;
     }
 
-    public static CubeType[] renderableSides(int x, int y, int z) {
-    	List<CubeType> sides = new ArrayList<CubeType>();
+    public static Cube.Side[] renderableSides(int x, int y, int z) {
+    	List<Cube.Side> sides = new ArrayList<Cube.Side>();
     	
     	if (x == 0 || world[x - 1][y][z] == 0)
-    		sides.add(CubeType.LEFT);
+    		sides.add(Cube.Side.LEFT);
     	if (x == length - 1 || world[x + 1][y][z] == 0)
-    		sides.add(CubeType.RIGHT);
+    		sides.add(Cube.Side.RIGHT);
     	if (y == 0 || world[x][y - 1][z] == 0)
-    		sides.add(CubeType.BOTTOM);
+    		sides.add(Cube.Side.BOTTOM);
     	if (y == height - 1|| world[x][y + 1][z] == 0)
-    		sides.add(CubeType.TOP);
+    		sides.add(Cube.Side.TOP);
     	if (z == 0 || world[x][y][z - 1] == 0)
-    		sides.add(CubeType.FAR);
+    		sides.add(Cube.Side.FAR);
     	if (z == width - 1 || world[x][y][z + 1] == 0)
-    		sides.add(CubeType.NEAR);
-    	
-    	CubeType[] ret = new CubeType[sides.size()];
+    		sides.add(Cube.Side.NEAR);
+
+        Cube.Side[] ret = new Cube.Side[sides.size()];
     	sides.toArray(ret);
     	
         return ret;
