@@ -3,7 +3,7 @@ package me.geakstr.engine.render;
 import me.geakstr.engine.core.Shader;
 import me.geakstr.engine.core.Transform;
 import me.geakstr.engine.core.World;
-import me.geakstr.engine.model.Cube.CubeType;
+import me.geakstr.engine.model.Cube.Cube;
 import me.geakstr.engine.model.ResourceBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -53,7 +53,7 @@ public class RenderModel {
         render(model, x, y, z, 0, 0, 0, 1, 1, 1, shader);
     }
 
-    public static void render(int x, int y, int z, float rotX, float rotY, float rotZ, float scaleX, float scaleY, float scaleZ, Shader shader, CubeType[] sides) {
+    public static void render(int x, int y, int z, float rotX, float rotY, float rotZ, float scaleX, float scaleY, float scaleZ, Shader shader, Cube.Side[] sides) {
         if (sides == null || sides.length == 0 || (sides.length == 1)) {
             render(World.getCubeId(), x, y, z, rotX, rotY, rotZ, scaleX, scaleY, scaleZ, shader);
             return;
@@ -63,7 +63,7 @@ public class RenderModel {
         glDrawElements(GL_TRIANGLES, ResourceBuffer.getVboIndexSize(World.getCubeId()), GL_UNSIGNED_INT, 0);
     }
 
-    public static void render(int x, int y, int z, Shader shader, CubeType[] sides) {
+    public static void render(int x, int y, int z, Shader shader, Cube.Side[] sides) {
         render(x, y, z, 0, 0, 0, 1, 1, 1, shader, sides);
     }
 
