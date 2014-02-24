@@ -9,11 +9,8 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Main extends Game {
     private Camera camera;
-    private Frustum frustum;
     private Shader shader;
     private Transform transform;
-
-    private boolean wasInput;
 
     public Main(String resDir) {
         super(resDir);
@@ -21,18 +18,11 @@ public class Main extends Game {
 
     public void init() {
         glClearColor(0.9f, 0.9f, 0.9f, 1f);
-        glClearDepth(1.0f);
         glEnable(GL_TEXTURE_2D);
-        glDepthFunc(GL_LEQUAL);
         glEnable(GL_DEPTH_TEST);
-        glShadeModel(GL_SMOOTH);
-        glMatrixMode(GL_MODELVIEW);
-        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-        camera = new Camera(70, (float) Display.getWidth() / (float) Display.getHeight(), 0.1f, 70f);
+        camera = new Camera(70, (float) Display.getWidth() / (float) Display.getHeight(), 0.1f, 256f);
         camera.setPosition(0, 0, 0);
-
-        frustum = new Frustum();
 
         shader = new Shader();
         shader.attachVertexShader("shader.vert");
@@ -44,16 +34,14 @@ public class Main extends Game {
         ResourceBuffer.loadModels("cube/top.obj");
         ResourceBuffer.loadTextures("stone.png");
 
-        World.init(16, 16, 16, ResourceBuffer.getModels().get("cube/top.obj").getId());
+        World.init(64, 64, 64, ResourceBuffer.getModels().get("cube/top.obj").getId());
 
         World.gen();
         World.renderPrepare();
-
-        wasInput = true;
     }
 
     public void update(int delta) {
-        wasInput = camera.input();
+        camera.input();
         updateFPS();
     }
 
@@ -62,17 +50,14 @@ public class Main extends Game {
 
         camera.apply();
 
-        if (wasInput) {
-            //frustum.update(camera.getProjectionMatrix(), camera.getViewMatrix());
-        }
-
         shader.bind();
         shader.setUniform("mProjection", camera.getProjectionMatrix());
         shader.setUniform("mView", camera.getViewMatrix());
         shader.setUniform("mNormal", camera.getNormalMatrix());
         shader.setUniform("mTransform", transform.getTransform());
+        shader.setUniform("mModelTransform", new Transform().getTransform());
 
-        World.render(shader);
+        World.render();
 
         shader.unbind();
     }
